@@ -1,0 +1,1497 @@
+{
+ "id": "00000000-0000-4000-8000-000000000007",
+ "revision": 0,
+ "last_node_id": 27,
+ "last_link_id": 33,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -1000,
+    -40
+   ],
+   "size": [
+    560,
+    640
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "## C · Upscale eines ausgewählten Bildes\n**Stufe 1 – Detail-Pass (Z-Image Turbo):** Bild wird 4× hochgerechnet, auf ~4 MP gebracht und mit wenig Denoise neu „durchgezeichnet“. Das bringt echte neue Materialdetails (Poren, Maserung, Patina).\n**Stufe 2 – SeedVR2 7B:** macht daraus ein scharfes, sauberes Bild in hoher Auflösung (Standard ×2 → ca. 16 MP, z. B. 4900×3260).\n\nSo arbeitest du damit:\n1. Ausgewähltes Bild aus A oder B im Node **Ausgewähltes Bild** hochladen (oder aus dem Output-Ordner per Drag & Drop).\n2. Den **gleichen Prompt** wie bei der Generierung in den grünen Block kopieren (für B ohne die `<ref_image>`-Bezüge reicht eine Kurzfassung).\n3. **Run**. Mit dem Vergleichs-Node siehst du vorher/nachher.\n\n**Regler**\n- **Detail-Denoise** (KSampler Stufe 1): 0.25 = sehr nah am Original, 0.40 = mehr neue Details, aber kleine Formänderungen möglich. **0 = Stufe 1 aus.**\n- **Zielgrösse Stufe 1** (megapixels): 4 ist ein guter Wert. Bei kleinen Ausgangsbildern nicht über 6.\n- **SeedVR2-Faktor** (multiplier): 2 = ca. 16 MP. Bei Speicherfehler (out of memory) auf 1.5 reduzieren.\n- Farbkorrektur *lab* hält die Farben des Originals."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 2,
+   "type": "UNETLoader",
+   "pos": [
+    -980,
+    690
+   ],
+   "size": [
+    360,
+    82
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      9
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UNETLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "z_image_turbo_bf16.safetensors",
+    "default"
+   ]
+  },
+  {
+   "id": 3,
+   "type": "CLIPLoader",
+   "pos": [
+    -980,
+    790
+   ],
+   "size": [
+    360,
+    106
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "CLIP",
+     "name": "CLIP",
+     "type": "CLIP",
+     "slot_index": 0,
+     "links": [
+      1
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "qwen_3_4b.safetensors",
+    "lumina2",
+    "default"
+   ]
+  },
+  {
+   "id": 4,
+   "type": "VAELoader",
+   "pos": [
+    -980,
+    910
+   ],
+   "size": [
+    360,
+    58
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "VAE",
+     "name": "VAE",
+     "type": "VAE",
+     "slot_index": 0,
+     "links": [
+      8,
+      15
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "ae.safetensors"
+   ]
+  },
+  {
+   "id": 5,
+   "type": "UpscaleModelLoader",
+   "pos": [
+    -980,
+    990
+   ],
+   "size": [
+    400,
+    58
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "UPSCALE_MODEL",
+     "name": "UPSCALE_MODEL",
+     "type": "UPSCALE_MODEL",
+     "slot_index": 0,
+     "links": [
+      4
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UpscaleModelLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "RealESRGAN_x4plus.safetensors"
+   ]
+  },
+  {
+   "id": 6,
+   "type": "UNETLoader",
+   "pos": [
+    -980,
+    1070
+   ],
+   "size": [
+    360,
+    82
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      20,
+      22
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UNETLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "seedvr2_7b_int8_convrot.safetensors",
+    "default"
+   ],
+   "title": "SeedVR2 Modell"
+  },
+  {
+   "id": 7,
+   "type": "VAELoader",
+   "pos": [
+    -980,
+    1150
+   ],
+   "size": [
+    360,
+    58
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "VAE",
+     "name": "VAE",
+     "type": "VAE",
+     "slot_index": 0,
+     "links": [
+      19,
+      27
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "seedvr2_ema_vae_fp16.safetensors"
+   ],
+   "title": "SeedVR2 VAE"
+  },
+  {
+   "id": 8,
+   "type": "LoadImage",
+   "pos": [
+    -380,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      5,
+      31
+     ]
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "ausgewaehlt.png",
+    "image"
+   ],
+   "title": "Ausgewähltes Bild"
+  },
+  {
+   "id": 9,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -380,
+    430
+   ],
+   "size": [
+    700,
+    300
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      2
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "Close-up architectural photograph of a building fragment, exactly as drawn in the sketch: a deep window reveal cut into a thick wall, a slender lintel above, the edge of the opening seen slightly from below. Only a part of the building is visible, cropped tightly, no sky line, no full facade. The wall is board-marked in-situ concrete with a fine timber grain imprint, small air pores, subtle efflorescence and darker weathering streaks below the lintel. The lintel is dark patinated steel with a faint rust bloom. The window is a deep frameless glass pane reflecting a soft grey sky. Shot on a medium format camera, 80mm lens, f/5.6, eye-level tripod shot. Soft overcast late-afternoon light grazing across the surface, revealing every texture, deep soft shadows inside the reveal. Muted, desaturated palette of warm greys and dark umber, quiet, contemplative, almost still-life atmosphere, light haze, subtle film grain. Precise physical material detail, photorealistic architectural photography."
+   ],
+   "title": "Prompt (gleicher wie bei der Generierung)",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 10,
+   "type": "CLIPTextEncode",
+   "pos": [
+    -40,
+    760
+   ],
+   "size": [
+    300,
+    90
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "clip",
+     "name": "clip",
+     "type": "CLIP",
+     "link": 1
+    },
+    {
+     "localized_name": "text",
+     "name": "text",
+     "type": "STRING",
+     "link": 2,
+     "widget": {
+      "name": "text"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      3,
+      11
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    ""
+   ],
+   "title": "Prompt (positiv)"
+  },
+  {
+   "id": 11,
+   "type": "ConditioningZeroOut",
+   "pos": [
+    -40,
+    880
+   ],
+   "size": [
+    240,
+    30
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "conditioning",
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      12
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ConditioningZeroOut",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 12,
+   "type": "ImageUpscaleWithModel",
+   "pos": [
+    420,
+    10
+   ],
+   "size": [
+    340,
+    46
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "upscale_model",
+     "name": "upscale_model",
+     "type": "UPSCALE_MODEL",
+     "link": 4
+    },
+    {
+     "localized_name": "image",
+     "name": "image",
+     "type": "IMAGE",
+     "link": 5
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      6
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageUpscaleWithModel",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 13,
+   "type": "ImageScaleToTotalPixels",
+   "pos": [
+    420,
+    100
+   ],
+   "size": [
+    300,
+    106
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "image",
+     "name": "image",
+     "type": "IMAGE",
+     "link": 6
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      7
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageScaleToTotalPixels",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "lanczos",
+    4.0,
+    16
+   ],
+   "title": "Zielgrösse Stufe 1 (megapixels)"
+  },
+  {
+   "id": 14,
+   "type": "VAEEncode",
+   "pos": [
+    420,
+    250
+   ],
+   "size": [
+    200,
+    46
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "pixels",
+     "name": "pixels",
+     "type": "IMAGE",
+     "link": 7
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 8
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      13
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEEncode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 15,
+   "type": "ModelSamplingAuraFlow",
+   "pos": [
+    420,
+    330
+   ],
+   "size": [
+    340,
+    58
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 9
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      10
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ModelSamplingAuraFlow",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    3
+   ]
+  },
+  {
+   "id": 16,
+   "type": "KSampler",
+   "pos": [
+    420,
+    430
+   ],
+   "size": [
+    320,
+    262
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 10
+    },
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 11
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 12
+    },
+    {
+     "localized_name": "latent_image",
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 13
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      14
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    20261019,
+    "fixed",
+    5,
+    1,
+    "dpmpp_2m_sde",
+    "beta",
+    0.3
+   ],
+   "title": "KSampler Stufe 1 (Detail-Denoise)"
+  },
+  {
+   "id": 17,
+   "type": "VAEDecode",
+   "pos": [
+    420,
+    730
+   ],
+   "size": [
+    200,
+    46
+   ],
+   "flags": {},
+   "order": 17,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "samples",
+     "name": "samples",
+     "type": "LATENT",
+     "link": 14
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 15
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      16,
+      33
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 18,
+   "type": "ResizeImageMaskNode",
+   "pos": [
+    860,
+    10
+   ],
+   "size": [
+    340,
+    106
+   ],
+   "flags": {},
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "input",
+     "name": "input",
+     "type": "IMAGE,MASK",
+     "link": 16
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "resized",
+     "name": "resized",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      17,
+      29
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ResizeImageMaskNode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "scale by multiplier",
+    2.0,
+    "lanczos"
+   ],
+   "title": "SeedVR2-Faktor (multiplier)"
+  },
+  {
+   "id": 19,
+   "type": "SeedVR2Preprocess",
+   "pos": [
+    860,
+    160
+   ],
+   "size": [
+    340,
+    30
+   ],
+   "flags": {},
+   "order": 19,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "resized_images",
+     "name": "resized_images",
+     "type": "IMAGE",
+     "link": 17
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "images",
+     "name": "images",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      18
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "SeedVR2Preprocess",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 20,
+   "type": "VAEEncodeTiled",
+   "pos": [
+    860,
+    230
+   ],
+   "size": [
+    340,
+    150
+   ],
+   "flags": {},
+   "order": 20,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "pixels",
+     "name": "pixels",
+     "type": "IMAGE",
+     "link": 18
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 19
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      21,
+      25
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEEncodeTiled",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    512,
+    128,
+    4096,
+    8
+   ]
+  },
+  {
+   "id": 21,
+   "type": "SeedVR2Conditioning",
+   "pos": [
+    860,
+    420
+   ],
+   "size": [
+    340,
+    50
+   ],
+   "flags": {},
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 20
+    },
+    {
+     "localized_name": "vae_conditioning",
+     "name": "vae_conditioning",
+     "type": "LATENT",
+     "link": 21
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      23
+     ]
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "slot_index": 1,
+     "links": [
+      24
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "SeedVR2Conditioning",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 22,
+   "type": "KSampler",
+   "pos": [
+    860,
+    510
+   ],
+   "size": [
+    320,
+    262
+   ],
+   "flags": {},
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 22
+    },
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 23
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 24
+    },
+    {
+     "localized_name": "latent_image",
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 25
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      26
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    20261019,
+    "fixed",
+    1,
+    1,
+    "euler",
+    "simple",
+    1.0
+   ],
+   "title": "KSampler SeedVR2 (nicht ändern)"
+  },
+  {
+   "id": 23,
+   "type": "VAEDecodeTiled",
+   "pos": [
+    860,
+    800
+   ],
+   "size": [
+    340,
+    150
+   ],
+   "flags": {},
+   "order": 23,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "samples",
+     "name": "samples",
+     "type": "LATENT",
+     "link": 26
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 27
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      28
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecodeTiled",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    512,
+    128,
+    4096,
+    8
+   ]
+  },
+  {
+   "id": 24,
+   "type": "SeedVR2PostProcessing",
+   "pos": [
+    860,
+    990
+   ],
+   "size": [
+    340,
+    82
+   ],
+   "flags": {},
+   "order": 24,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "images",
+     "name": "images",
+     "type": "IMAGE",
+     "link": 28
+    },
+    {
+     "localized_name": "original_resized_images",
+     "name": "original_resized_images",
+     "type": "IMAGE",
+     "link": 29
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "images",
+     "name": "images",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      30,
+      32
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "SeedVR2PostProcessing",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "lab"
+   ]
+  },
+  {
+   "id": 25,
+   "type": "SaveImage",
+   "pos": [
+    1300,
+    10
+   ],
+   "size": [
+    620,
+    1100
+   ],
+   "flags": {},
+   "order": 25,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "images",
+     "name": "images",
+     "type": "IMAGE",
+     "link": 30
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "SaveImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "C_upscale/final"
+   ]
+  },
+  {
+   "id": 26,
+   "type": "ImageCompare",
+   "pos": [
+    1940,
+    10
+   ],
+   "size": [
+    620,
+    700
+   ],
+   "flags": {},
+   "order": 26,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "image_a",
+     "name": "image_a",
+     "type": "IMAGE",
+     "link": 31
+    },
+    {
+     "localized_name": "image_b",
+     "name": "image_b",
+     "type": "IMAGE",
+     "link": 32
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "ImageCompare",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [],
+   "title": "Vorher / Nachher"
+  },
+  {
+   "id": 27,
+   "type": "PreviewImage",
+   "pos": [
+    1940,
+    740
+   ],
+   "size": [
+    620,
+    380
+   ],
+   "flags": {},
+   "order": 27,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "images",
+     "name": "images",
+     "type": "IMAGE",
+     "link": 33
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "PreviewImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [],
+   "title": "Zwischenstand nach Stufe 1"
+  }
+ ],
+ "links": [
+  [
+   1,
+   3,
+   0,
+   10,
+   0,
+   "CLIP"
+  ],
+  [
+   2,
+   9,
+   0,
+   10,
+   1,
+   "STRING"
+  ],
+  [
+   3,
+   10,
+   0,
+   11,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   4,
+   5,
+   0,
+   12,
+   0,
+   "UPSCALE_MODEL"
+  ],
+  [
+   5,
+   8,
+   0,
+   12,
+   1,
+   "IMAGE"
+  ],
+  [
+   6,
+   12,
+   0,
+   13,
+   0,
+   "IMAGE"
+  ],
+  [
+   7,
+   13,
+   0,
+   14,
+   0,
+   "IMAGE"
+  ],
+  [
+   8,
+   4,
+   0,
+   14,
+   1,
+   "VAE"
+  ],
+  [
+   9,
+   2,
+   0,
+   15,
+   0,
+   "MODEL"
+  ],
+  [
+   10,
+   15,
+   0,
+   16,
+   0,
+   "MODEL"
+  ],
+  [
+   11,
+   10,
+   0,
+   16,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   12,
+   11,
+   0,
+   16,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   13,
+   14,
+   0,
+   16,
+   3,
+   "LATENT"
+  ],
+  [
+   14,
+   16,
+   0,
+   17,
+   0,
+   "LATENT"
+  ],
+  [
+   15,
+   4,
+   0,
+   17,
+   1,
+   "VAE"
+  ],
+  [
+   16,
+   17,
+   0,
+   18,
+   0,
+   "IMAGE"
+  ],
+  [
+   17,
+   18,
+   0,
+   19,
+   0,
+   "IMAGE"
+  ],
+  [
+   18,
+   19,
+   0,
+   20,
+   0,
+   "IMAGE"
+  ],
+  [
+   19,
+   7,
+   0,
+   20,
+   1,
+   "VAE"
+  ],
+  [
+   20,
+   6,
+   0,
+   21,
+   0,
+   "MODEL"
+  ],
+  [
+   21,
+   20,
+   0,
+   21,
+   1,
+   "LATENT"
+  ],
+  [
+   22,
+   6,
+   0,
+   22,
+   0,
+   "MODEL"
+  ],
+  [
+   23,
+   21,
+   0,
+   22,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   24,
+   21,
+   1,
+   22,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   25,
+   20,
+   0,
+   22,
+   3,
+   "LATENT"
+  ],
+  [
+   26,
+   22,
+   0,
+   23,
+   0,
+   "LATENT"
+  ],
+  [
+   27,
+   7,
+   0,
+   23,
+   1,
+   "VAE"
+  ],
+  [
+   28,
+   23,
+   0,
+   24,
+   0,
+   "IMAGE"
+  ],
+  [
+   29,
+   18,
+   0,
+   24,
+   1,
+   "IMAGE"
+  ],
+  [
+   30,
+   24,
+   0,
+   25,
+   0,
+   "IMAGE"
+  ],
+  [
+   31,
+   8,
+   0,
+   26,
+   0,
+   "IMAGE"
+  ],
+  [
+   32,
+   24,
+   0,
+   26,
+   1,
+   "IMAGE"
+  ],
+  [
+   33,
+   17,
+   0,
+   27,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "Modelle",
+   "bounding": [
+    -1000,
+    640,
+    440,
+    560
+   ],
+   "color": "#555555",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "0 · Eingang & Prompt",
+   "bounding": [
+    -400,
+    -40,
+    760,
+    1000
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "1 · Detail-Pass (Z-Image)",
+   "bounding": [
+    400,
+    -40,
+    400,
+    1000
+   ],
+   "color": "#3f6e3f",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "2 · SeedVR2 Upscale",
+   "bounding": [
+    840,
+    -40,
+    400,
+    1000
+   ],
+   "color": "#6b4f8a",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 5,
+   "title": "3 · Ergebnis",
+   "bounding": [
+    1280,
+    -40,
+    1300,
+    1180
+   ],
+   "color": "#8a6a3a",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.6,
+   "offset": [
+    0,
+    0
+   ]
+  }
+ },
+ "version": 0.4
+}

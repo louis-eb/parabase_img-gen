@@ -1,0 +1,918 @@
+{
+ "id": "00000000-0000-4000-8000-000000000006",
+ "revision": 0,
+ "last_node_id": 16,
+ "last_link_id": 17,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -1000,
+    -40
+   ],
+   "size": [
+    560,
+    760
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "## B · Skizze + Materialbilder\n**FLUX.3 Image Klein (Multi-Referenz)**\n\nHier steuerst du Materialien mit **Fotos** statt nur mit Text.\n\n1. **Referenz 0 = Skizze** (bestimmt Geometrie, Ausschnitt und Bildformat).\n2. **Referenz 1 / 2 = Materialfotos** – z. B. Beton-Musterplatte, Holz, Naturstein, Metall. Am besten frontal, gleichmässig belichtet, nur das Material im Bild.\n3. Im Prompt sprichst du die Bilder mit `<ref_image_0>`, `<ref_image_1>`, `<ref_image_2>` … an – in der Reihenfolge, in der sie am Node *Referenzen* hängen.\n4. **Optional Stimmungsreferenz**: Den Node *Stimmung (optional)* mit dem freien Eingang `images.image3` am Node *Referenzen* verbinden und im Prompt z. B. schreiben: *\"Match the light, colour grading and atmosphere of <ref_image_3>, but not its content.\"*\n5. **Run** → 4 Varianten. Bestes Bild in **C · Upscale** weiterverarbeiten.\n\n**Material entfernen**: Verbindung zum Node *Referenzen* lösen und den Satz im Prompt löschen. **Mehr Materialien**: einfach weitere Load-Image-Nodes an die freien Eingänge hängen (bis 10 Referenzen).\n\n**Tipps**\n- Prompt als vollständige Bildbeschreibung schreiben, nicht als Befehl.\n- Wenn die Skizze zu frei interpretiert wird: im Prompt betonen *\"keep the exact geometry … of <ref_image_0>\"* und die Skizze sauberer/kontrastreicher machen.\n- `megapixels` am Node *Referenzen* = Ausgabegrösse (1.5 ≈ 1500×1000). Höher = mehr Materialdetail, aber langsamer.\n\nSteps 16 · CFG 1 · euler/simple (destilliertes Modell)."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 2,
+   "type": "UNETLoader",
+   "pos": [
+    -980,
+    810
+   ],
+   "size": [
+    360,
+    82
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      11
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UNETLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "flux3-image-klein-bf16.safetensors",
+    "default"
+   ]
+  },
+  {
+   "id": 3,
+   "type": "CLIPLoader",
+   "pos": [
+    -980,
+    910
+   ],
+   "size": [
+    360,
+    106
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "CLIP",
+     "name": "CLIP",
+     "type": "CLIP",
+     "slot_index": 0,
+     "links": [
+      1
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "qwen3vl_4b_int8_convrot.safetensors",
+    "flux3",
+    "default"
+   ]
+  },
+  {
+   "id": 4,
+   "type": "VAELoader",
+   "pos": [
+    -980,
+    1030
+   ],
+   "size": [
+    360,
+    58
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "VAE",
+     "name": "VAE",
+     "type": "VAE",
+     "slot_index": 0,
+     "links": [
+      6,
+      16
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "flux2-vae.safetensors"
+   ]
+  },
+  {
+   "id": 5,
+   "type": "LoadImage",
+   "pos": [
+    -380,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      7
+     ]
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "skizze_beispiel.png",
+    "image"
+   ],
+   "title": "Referenz 0 · Skizze"
+  },
+  {
+   "id": 6,
+   "type": "LoadImage",
+   "pos": [
+    -40,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      8
+     ]
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "material_1.png",
+    "image"
+   ],
+   "title": "Referenz 1 · Material Wand"
+  },
+  {
+   "id": 7,
+   "type": "LoadImage",
+   "pos": [
+    300,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      9
+     ]
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "material_2.png",
+    "image"
+   ],
+   "title": "Referenz 2 · Material Rahmen/Kante"
+  },
+  {
+   "id": 8,
+   "type": "LoadImage",
+   "pos": [
+    640,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": null
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "stimmung.png",
+    "image"
+   ],
+   "title": "Stimmung (optional, nicht verbunden)"
+  },
+  {
+   "id": 9,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -380,
+    510
+   ],
+   "size": [
+    760,
+    340
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      2
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "Create a photorealistic close-up architectural photograph of the building fragment drawn in <ref_image_0>. Keep the exact geometry, proportions, edges, openings and camera angle of the sketch; only a part of the building is visible, tightly cropped. Render the main wall surfaces in the material shown in <ref_image_1>, matching its colour, texture, grain, joint pattern and scale. Render the frames, edges and lintel in the material shown in <ref_image_2>. Medium format camera, 80mm lens, soft overcast late-afternoon light grazing across the surfaces, deep soft shadows inside the reveal, muted desaturated palette, quiet contemplative atmosphere, light haze, subtle film grain. Precise physical material detail. No pencil lines, paper texture or drawing marks remain."
+   ],
+   "title": "Prompt (Bildbeschreibung mit <ref_image_N>)",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 10,
+   "type": "CLIPTextEncode",
+   "pos": [
+    420,
+    520
+   ],
+   "size": [
+    300,
+    90
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "clip",
+     "name": "clip",
+     "type": "CLIP",
+     "link": 1
+    },
+    {
+     "localized_name": "text",
+     "name": "text",
+     "type": "STRING",
+     "link": 2,
+     "widget": {
+      "name": "text"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      3,
+      4
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    ""
+   ],
+   "title": "Prompt (positiv)"
+  },
+  {
+   "id": 11,
+   "type": "ConditioningZeroOut",
+   "pos": [
+    420,
+    660
+   ],
+   "size": [
+    240,
+    30
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "conditioning",
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      5
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ConditioningZeroOut",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 12,
+   "type": "ReferenceMultiLatent",
+   "pos": [
+    1060,
+    10
+   ],
+   "size": [
+    340,
+    230
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 4
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 5
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 6
+    },
+    {
+     "localized_name": "images.image0",
+     "name": "images.image0",
+     "type": "IMAGE",
+     "link": 7
+    },
+    {
+     "localized_name": "images.image1",
+     "name": "images.image1",
+     "type": "IMAGE",
+     "link": 8
+    },
+    {
+     "localized_name": "images.image2",
+     "name": "images.image2",
+     "type": "IMAGE",
+     "link": 9
+    },
+    {
+     "localized_name": "images.image3",
+     "name": "images.image3",
+     "type": "IMAGE",
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      12
+     ]
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "slot_index": 1,
+     "links": [
+      13
+     ]
+    },
+    {
+     "localized_name": "empty_latent",
+     "name": "empty_latent",
+     "type": "LATENT",
+     "slot_index": 2,
+     "links": [
+      10
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ReferenceMultiLatent",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "resize",
+    1.5
+   ],
+   "title": "Referenzen"
+  },
+  {
+   "id": 13,
+   "type": "RepeatLatentBatch",
+   "pos": [
+    1060,
+    290
+   ],
+   "size": [
+    340,
+    58
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "samples",
+     "name": "samples",
+     "type": "LATENT",
+     "link": 10
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      14
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "RepeatLatentBatch",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    4
+   ],
+   "title": "Anzahl Varianten"
+  },
+  {
+   "id": 14,
+   "type": "KSampler",
+   "pos": [
+    1060,
+    400
+   ],
+   "size": [
+    320,
+    262
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 11
+    },
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 12
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 13
+    },
+    {
+     "localized_name": "latent_image",
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 14
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      15
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    20261019,
+    "randomize",
+    16,
+    1,
+    "euler",
+    "simple",
+    1.0
+   ]
+  },
+  {
+   "id": 15,
+   "type": "VAEDecode",
+   "pos": [
+    1060,
+    700
+   ],
+   "size": [
+    200,
+    46
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "samples",
+     "name": "samples",
+     "type": "LATENT",
+     "link": 15
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 16
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      17
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 16,
+   "type": "SaveImage",
+   "pos": [
+    1440,
+    10
+   ],
+   "size": [
+    680,
+    1220
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "images",
+     "name": "images",
+     "type": "IMAGE",
+     "link": 17
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "SaveImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "B_material/variante"
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   3,
+   0,
+   10,
+   0,
+   "CLIP"
+  ],
+  [
+   2,
+   9,
+   0,
+   10,
+   1,
+   "STRING"
+  ],
+  [
+   3,
+   10,
+   0,
+   11,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   4,
+   10,
+   0,
+   12,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   5,
+   11,
+   0,
+   12,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   6,
+   4,
+   0,
+   12,
+   2,
+   "VAE"
+  ],
+  [
+   7,
+   5,
+   0,
+   12,
+   3,
+   "IMAGE"
+  ],
+  [
+   8,
+   6,
+   0,
+   12,
+   4,
+   "IMAGE"
+  ],
+  [
+   9,
+   7,
+   0,
+   12,
+   5,
+   "IMAGE"
+  ],
+  [
+   10,
+   12,
+   2,
+   13,
+   0,
+   "LATENT"
+  ],
+  [
+   11,
+   2,
+   0,
+   14,
+   0,
+   "MODEL"
+  ],
+  [
+   12,
+   12,
+   0,
+   14,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   13,
+   12,
+   1,
+   14,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   14,
+   13,
+   0,
+   14,
+   3,
+   "LATENT"
+  ],
+  [
+   15,
+   14,
+   0,
+   15,
+   0,
+   "LATENT"
+  ],
+  [
+   16,
+   4,
+   0,
+   15,
+   1,
+   "VAE"
+  ],
+  [
+   17,
+   15,
+   0,
+   16,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "Modelle",
+   "bounding": [
+    -1000,
+    760,
+    440,
+    330
+   ],
+   "color": "#555555",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "1 · Referenzbilder",
+   "bounding": [
+    -400,
+    -40,
+    1400,
+    470
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "2 · Prompt",
+   "bounding": [
+    -400,
+    460,
+    1400,
+    430
+   ],
+   "color": "#3f6e3f",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "3 · Generieren",
+   "bounding": [
+    1040,
+    -40,
+    1100,
+    1300
+   ],
+   "color": "#6b4f8a",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.6,
+   "offset": [
+    0,
+    0
+   ]
+  }
+ },
+ "version": 0.4
+}
