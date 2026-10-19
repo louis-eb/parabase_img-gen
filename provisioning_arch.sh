@@ -117,10 +117,10 @@ write_workflows() {
   log "Workflows schreiben nach ${WORKFLOW_DIR}"
   cat > "${WORKFLOW_DIR}/A_Skizze_zu_Stimmung.json" <<'JSONEOF'
 {
- "id": "00000000-0000-4000-8000-000000000005",
+ "id": "00000000-0000-4000-8000-000000000000",
  "revision": 0,
- "last_node_id": 25,
- "last_link_id": 28,
+ "last_node_id": 30,
+ "last_link_id": 33,
  "nodes": [
   {
    "id": 1,
@@ -140,7 +140,7 @@ write_workflows() {
    "outputs": [],
    "properties": {},
    "widgets_values": [
-    "## A · Skizze → Stimmung\n**Z-Image Turbo + Fun ControlNet Union 2.1 (Scribble)**\n\nSo arbeitest du damit:\n1. Skizze im Node **Skizze** hochladen (Bleistift, Fineliner, Screenshot – egal). Hochformat/Querformat wird übernommen.\n2. Die drei grünen Text-Blöcke anpassen: **Motiv**, **Material**, **Stimmung & Kamera**. Sie werden automatisch zu einem Prompt zusammengesetzt.\n3. **Run** – du bekommst 4 Varianten (Batch-Grösse im Node *Bildgrösse & Anzahl*).\n4. Das beste Bild per Rechtsklick → *Save Image* sichern und in Workflow **C · Upscale** laden.\n\n**Wichtigste Regler**\n- **ControlNet-Stärke** (Node *Skizze → Geometrie*): 0.6 = lockere Interpretation, 0.9 = sehr nah an der Skizze. Start: 0.75.\n- **end_percent** (unter *advanced*): 0.8–0.9 lässt dem Modell in den letzten Schritten Freiheit für Materialdetails.\n- **Skizze direkt / Canny** (Schalter): *false* = Skizze wird invertiert und als Scribble benutzt (für Handskizzen). *true* = Canny-Kanten (für saubere Strichzeichnungen oder Screenshots aus dem 3D-Modell).\n- **Seed** auf *fixed* stellen, wenn du an einem Bild nur den Prompt verfeinern willst.\n\nSteps 8 · CFG 1 · res_multistep/simple · Shift 3 sind auf das 8-Step-Modell abgestimmt – nicht verändern."
+    "## A · Skizze → Stimmung\n**Z-Image Turbo + Fun ControlNet Union 2.1 (Scribble)**\n\nSo arbeitest du damit:\n1. Skizze im Node **Skizze** hochladen (Bleistift, Fineliner, Screenshot – egal). Hochformat/Querformat wird übernommen.\n2. Die drei grünen Text-Blöcke anpassen: **Motiv**, **Material**, **Stimmung & Kamera**. Sie werden automatisch zu einem Prompt zusammengesetzt.\n3. **Run** – du bekommst 4 Varianten (Batch-Grösse im Node *Bildgrösse & Anzahl*).\n4. Das beste Bild per Rechtsklick → *Save Image* sichern und in Workflow **C · Upscale** laden.\n\n**Wichtigste Regler**\n- **Kontrollbild prüfen!** Es muss **weisse Linien auf reinem Schwarz** zeigen. Graue Flächen oder Papierstruktur → das Modell malt die Skizze ab statt ein Foto zu machen.\n- **Linien-Schwelle** (0.4–0.7): Fehlen Linien → tiefer. Papierflecken/Schatten sichtbar → höher. **Linien verdicken**: 0–3.\n- **ControlNet-Stärke** (Node *Skizze → Geometrie*): 0.6 = lockere Interpretation, 0.9 = sehr nah an der Skizze. Start: 0.7.\n- **end_percent** (unter *advanced*): 0.7–0.8 lässt dem Modell in den letzten Schritten Freiheit für Materialdetails.\n- **Schalter**: *false* = Handskizze als Scribble (oben). *true* = Canny-Kanten (für Screenshots aus dem 3D-Modell).\n- **Seed** auf *fixed* stellen, wenn du an einem Bild nur den Prompt verfeinern willst.\n\nSteps 8 · CFG 1 · res_multistep/simple · Shift 3 sind auf das 8-Step-Modell abgestimmt – nicht verändern."
    ],
    "color": "#223",
    "bgcolor": "#335"
@@ -167,7 +167,7 @@ write_workflows() {
      "type": "MODEL",
      "slot_index": 0,
      "links": [
-      14
+      19
      ]
     }
    ],
@@ -202,7 +202,7 @@ write_workflows() {
      "type": "CLIP",
      "slot_index": 0,
      "links": [
-      11
+      16
      ]
     }
    ],
@@ -238,8 +238,8 @@ write_workflows() {
      "type": "VAE",
      "slot_index": 0,
      "links": [
-      16,
-      27
+      21,
+      32
      ]
     }
    ],
@@ -273,7 +273,7 @@ write_workflows() {
      "type": "MODEL_PATCH",
      "slot_index": 0,
      "links": [
-      15
+      20
      ]
     }
    ],
@@ -358,8 +358,8 @@ write_workflows() {
      "slot_index": 0,
      "links": [
       2,
-      3,
-      19
+      8,
+      24
      ]
     }
    ],
@@ -376,14 +376,14 @@ write_workflows() {
   },
   {
    "id": 8,
-   "type": "ImageInvert",
+   "type": "ImageBlur",
    "pos": [
     -40,
     150
    ],
    "size": [
     300,
-    30
+    82
    ],
    "flags": {},
    "order": 8,
@@ -403,27 +403,30 @@ write_workflows() {
      "type": "IMAGE",
      "slot_index": 0,
      "links": [
-      4
+      3
      ]
     }
    ],
    "properties": {
-    "Node name for S&R": "ImageInvert",
+    "Node name for S&R": "ImageBlur",
     "cnr_id": "comfy-core"
    },
-   "widgets_values": [],
-   "title": "Invertieren (Scribble)"
+   "widgets_values": [
+    1,
+    1.0
+   ],
+   "title": "Papierrauschen glätten"
   },
   {
    "id": 9,
-   "type": "Canny",
+   "type": "ImageToMask",
    "pos": [
     -40,
-    220
+    260
    ],
    "size": [
     300,
-    82
+    58
    ],
    "flags": {},
    "order": 9,
@@ -438,12 +441,218 @@ write_workflows() {
    ],
    "outputs": [
     {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 0,
+     "links": [
+      4
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageToMask",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "blue"
+   ],
+   "title": "Helligkeit (Blau-Kanal)"
+  },
+  {
+   "id": 10,
+   "type": "InvertMask",
+   "pos": [
+    -40,
+    350
+   ],
+   "size": [
+    300,
+    30
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "mask",
+     "name": "mask",
+     "type": "MASK",
+     "link": 4
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 0,
+     "links": [
+      5
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "InvertMask",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [],
+   "title": "Invertieren (Linien weiss)"
+  },
+  {
+   "id": 11,
+   "type": "ThresholdMask",
+   "pos": [
+    -40,
+    420
+   ],
+   "size": [
+    300,
+    58
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "mask",
+     "name": "mask",
+     "type": "MASK",
+     "link": 5
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 0,
+     "links": [
+      6
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ThresholdMask",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    0.55
+   ],
+   "title": "Linien-Schwelle (0.4–0.7)"
+  },
+  {
+   "id": 12,
+   "type": "GrowMask",
+   "pos": [
+    -40,
+    510
+   ],
+   "size": [
+    300,
+    82
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "mask",
+     "name": "mask",
+     "type": "MASK",
+     "link": 6
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 0,
+     "links": [
+      7
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "GrowMask",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    1,
+    true
+   ],
+   "title": "Linien verdicken (expand)"
+  },
+  {
+   "id": 13,
+   "type": "MaskToImage",
+   "pos": [
+    -40,
+    620
+   ],
+   "size": [
+    300,
+    30
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "mask",
+     "name": "mask",
+     "type": "MASK",
+     "link": 7
+    }
+   ],
+   "outputs": [
+    {
      "localized_name": "IMAGE",
      "name": "IMAGE",
      "type": "IMAGE",
      "slot_index": 0,
      "links": [
-      5
+      9
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "MaskToImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 14,
+   "type": "Canny",
+   "pos": [
+    300,
+    430
+   ],
+   "size": [
+    340,
+    82
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "image",
+     "name": "image",
+     "type": "IMAGE",
+     "link": 8
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      10
      ]
     }
    ],
@@ -455,34 +664,34 @@ write_workflows() {
     0.15,
     0.35
    ],
-   "title": "Canny (für saubere Linien)"
+   "title": "Canny (für 3D-Screenshots)"
   },
   {
-   "id": 10,
+   "id": 15,
    "type": "ComfySwitchNode",
    "pos": [
-    -40,
-    340
+    300,
+    540
    ],
    "size": [
-    300,
+    340,
     82
    ],
    "flags": {},
-   "order": 10,
+   "order": 15,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "on_false",
      "name": "on_false",
      "type": "IMAGE",
-     "link": 4
+     "link": 9
     },
     {
      "localized_name": "on_true",
      "name": "on_true",
      "type": "IMAGE",
-     "link": 5
+     "link": 10
     }
    ],
    "outputs": [
@@ -492,8 +701,8 @@ write_workflows() {
      "type": "IMAGE",
      "slot_index": 0,
      "links": [
-      6,
-      17
+      11,
+      22
      ]
     }
    ],
@@ -504,10 +713,10 @@ write_workflows() {
    "widgets_values": [
     false
    ],
-   "title": "Skizze direkt (false) / Canny (true)"
+   "title": "Skizze/Scribble (false) / Canny (true)"
   },
   {
-   "id": 11,
+   "id": 16,
    "type": "PreviewImage",
    "pos": [
     300,
@@ -518,14 +727,14 @@ write_workflows() {
     400
    ],
    "flags": {},
-   "order": 11,
+   "order": 16,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "images",
      "name": "images",
      "type": "IMAGE",
-     "link": 6
+     "link": 11
     }
    ],
    "outputs": [],
@@ -534,10 +743,10 @@ write_workflows() {
     "cnr_id": "comfy-core"
    },
    "widgets_values": [],
-   "title": "Kontrollbild"
+   "title": "Kontrollbild – muss weisse Linien auf Schwarz zeigen"
   },
   {
-   "id": 12,
+   "id": 17,
    "type": "PrimitiveStringMultiline",
    "pos": [
     -380,
@@ -548,7 +757,7 @@ write_workflows() {
     170
    ],
    "flags": {},
-   "order": 12,
+   "order": 17,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -558,7 +767,7 @@ write_workflows() {
      "type": "STRING",
      "slot_index": 0,
      "links": [
-      7
+      12
      ]
     }
    ],
@@ -574,7 +783,7 @@ write_workflows() {
    "bgcolor": "#353"
   },
   {
-   "id": 13,
+   "id": 18,
    "type": "PrimitiveStringMultiline",
    "pos": [
     -380,
@@ -585,7 +794,7 @@ write_workflows() {
     170
    ],
    "flags": {},
-   "order": 13,
+   "order": 18,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -595,7 +804,7 @@ write_workflows() {
      "type": "STRING",
      "slot_index": 0,
      "links": [
-      8
+      13
      ]
     }
    ],
@@ -611,7 +820,7 @@ write_workflows() {
    "bgcolor": "#353"
   },
   {
-   "id": 14,
+   "id": 19,
    "type": "PrimitiveStringMultiline",
    "pos": [
     -380,
@@ -622,7 +831,7 @@ write_workflows() {
     170
    ],
    "flags": {},
-   "order": 14,
+   "order": 19,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -632,7 +841,7 @@ write_workflows() {
      "type": "STRING",
      "slot_index": 0,
      "links": [
-      10
+      15
      ]
     }
    ],
@@ -648,7 +857,7 @@ write_workflows() {
    "bgcolor": "#353"
   },
   {
-   "id": 15,
+   "id": 20,
    "type": "StringConcatenate",
    "pos": [
     110,
@@ -659,14 +868,14 @@ write_workflows() {
     120
    ],
    "flags": {},
-   "order": 15,
+   "order": 20,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "string_a",
      "name": "string_a",
      "type": "STRING",
-     "link": 7,
+     "link": 12,
      "widget": {
       "name": "string_a"
      }
@@ -675,7 +884,7 @@ write_workflows() {
      "localized_name": "string_b",
      "name": "string_b",
      "type": "STRING",
-     "link": 8,
+     "link": 13,
      "widget": {
       "name": "string_b"
      }
@@ -688,7 +897,7 @@ write_workflows() {
      "type": "STRING",
      "slot_index": 0,
      "links": [
-      9
+      14
      ]
     }
    ],
@@ -703,7 +912,7 @@ write_workflows() {
    ]
   },
   {
-   "id": 16,
+   "id": 21,
    "type": "StringConcatenate",
    "pos": [
     110,
@@ -714,14 +923,14 @@ write_workflows() {
     120
    ],
    "flags": {},
-   "order": 16,
+   "order": 21,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "string_a",
      "name": "string_a",
      "type": "STRING",
-     "link": 9,
+     "link": 14,
      "widget": {
       "name": "string_a"
      }
@@ -730,7 +939,7 @@ write_workflows() {
      "localized_name": "string_b",
      "name": "string_b",
      "type": "STRING",
-     "link": 10,
+     "link": 15,
      "widget": {
       "name": "string_b"
      }
@@ -743,7 +952,7 @@ write_workflows() {
      "type": "STRING",
      "slot_index": 0,
      "links": [
-      12
+      17
      ]
     }
    ],
@@ -758,7 +967,7 @@ write_workflows() {
    ]
   },
   {
-   "id": 17,
+   "id": 22,
    "type": "CLIPTextEncode",
    "pos": [
     400,
@@ -769,20 +978,20 @@ write_workflows() {
     90
    ],
    "flags": {},
-   "order": 17,
+   "order": 22,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "clip",
      "name": "clip",
      "type": "CLIP",
-     "link": 11
+     "link": 16
     },
     {
      "localized_name": "text",
      "name": "text",
      "type": "STRING",
-     "link": 12,
+     "link": 17,
      "widget": {
       "name": "text"
      }
@@ -795,8 +1004,8 @@ write_workflows() {
      "type": "CONDITIONING",
      "slot_index": 0,
      "links": [
-      13,
-      23
+      18,
+      28
      ]
     }
    ],
@@ -810,7 +1019,7 @@ write_workflows() {
    "title": "Prompt (positiv)"
   },
   {
-   "id": 18,
+   "id": 23,
    "type": "ConditioningZeroOut",
    "pos": [
     400,
@@ -821,14 +1030,14 @@ write_workflows() {
     30
    ],
    "flags": {},
-   "order": 18,
+   "order": 23,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "conditioning",
      "name": "conditioning",
      "type": "CONDITIONING",
-     "link": 13
+     "link": 18
     }
    ],
    "outputs": [
@@ -838,7 +1047,7 @@ write_workflows() {
      "type": "CONDITIONING",
      "slot_index": 0,
      "links": [
-      24
+      29
      ]
     }
    ],
@@ -849,7 +1058,7 @@ write_workflows() {
    "widgets_values": []
   },
   {
-   "id": 19,
+   "id": 24,
    "type": "QwenImageDiffsynthControlnet",
    "pos": [
     720,
@@ -860,32 +1069,32 @@ write_workflows() {
     160
    ],
    "flags": {},
-   "order": 19,
+   "order": 24,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "model",
      "name": "model",
      "type": "MODEL",
-     "link": 14
+     "link": 19
     },
     {
      "localized_name": "model_patch",
      "name": "model_patch",
      "type": "MODEL_PATCH",
-     "link": 15
+     "link": 20
     },
     {
      "localized_name": "vae",
      "name": "vae",
      "type": "VAE",
-     "link": 16
+     "link": 21
     },
     {
      "localized_name": "image",
      "name": "image",
      "type": "IMAGE",
-     "link": 17
+     "link": 22
     },
     {
      "localized_name": "mask",
@@ -901,7 +1110,7 @@ write_workflows() {
      "type": "MODEL",
      "slot_index": 0,
      "links": [
-      18
+      23
      ]
     }
    ],
@@ -910,14 +1119,14 @@ write_workflows() {
     "cnr_id": "comfy-core"
    },
    "widgets_values": [
-    0.75,
+    0.7,
     0.0,
-    0.9
+    0.8
    ],
    "title": "Skizze → Geometrie (ControlNet)"
   },
   {
-   "id": 20,
+   "id": 25,
    "type": "ModelSamplingAuraFlow",
    "pos": [
     720,
@@ -928,14 +1137,14 @@ write_workflows() {
     58
    ],
    "flags": {},
-   "order": 20,
+   "order": 25,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "model",
      "name": "model",
      "type": "MODEL",
-     "link": 18
+     "link": 23
     }
    ],
    "outputs": [
@@ -945,7 +1154,7 @@ write_workflows() {
      "type": "MODEL",
      "slot_index": 0,
      "links": [
-      22
+      27
      ]
     }
    ],
@@ -958,7 +1167,7 @@ write_workflows() {
    ]
   },
   {
-   "id": 21,
+   "id": 26,
    "type": "GetImageSize",
    "pos": [
     720,
@@ -969,14 +1178,14 @@ write_workflows() {
     66
    ],
    "flags": {},
-   "order": 21,
+   "order": 26,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "image",
      "name": "image",
      "type": "IMAGE",
-     "link": 19
+     "link": 24
     }
    ],
    "outputs": [
@@ -986,7 +1195,7 @@ write_workflows() {
      "type": "INT",
      "slot_index": 0,
      "links": [
-      20
+      25
      ]
     },
     {
@@ -995,7 +1204,7 @@ write_workflows() {
      "type": "INT",
      "slot_index": 1,
      "links": [
-      21
+      26
      ]
     },
     {
@@ -1013,7 +1222,7 @@ write_workflows() {
    "widgets_values": []
   },
   {
-   "id": 22,
+   "id": 27,
    "type": "EmptySD3LatentImage",
    "pos": [
     720,
@@ -1024,14 +1233,14 @@ write_workflows() {
     106
    ],
    "flags": {},
-   "order": 22,
+   "order": 27,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "width",
      "name": "width",
      "type": "INT",
-     "link": 20,
+     "link": 25,
      "widget": {
       "name": "width"
      }
@@ -1040,7 +1249,7 @@ write_workflows() {
      "localized_name": "height",
      "name": "height",
      "type": "INT",
-     "link": 21,
+     "link": 26,
      "widget": {
       "name": "height"
      }
@@ -1053,7 +1262,7 @@ write_workflows() {
      "type": "LATENT",
      "slot_index": 0,
      "links": [
-      25
+      30
      ]
     }
    ],
@@ -1069,7 +1278,7 @@ write_workflows() {
    "title": "Bildgrösse & Anzahl (batch_size)"
   },
   {
-   "id": 23,
+   "id": 28,
    "type": "KSampler",
    "pos": [
     720,
@@ -1080,32 +1289,32 @@ write_workflows() {
     262
    ],
    "flags": {},
-   "order": 23,
+   "order": 28,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "model",
      "name": "model",
      "type": "MODEL",
-     "link": 22
+     "link": 27
     },
     {
      "localized_name": "positive",
      "name": "positive",
      "type": "CONDITIONING",
-     "link": 23
+     "link": 28
     },
     {
      "localized_name": "negative",
      "name": "negative",
      "type": "CONDITIONING",
-     "link": 24
+     "link": 29
     },
     {
      "localized_name": "latent_image",
      "name": "latent_image",
      "type": "LATENT",
-     "link": 25
+     "link": 30
     }
    ],
    "outputs": [
@@ -1115,7 +1324,7 @@ write_workflows() {
      "type": "LATENT",
      "slot_index": 0,
      "links": [
-      26
+      31
      ]
     }
    ],
@@ -1134,7 +1343,7 @@ write_workflows() {
    ]
   },
   {
-   "id": 24,
+   "id": 29,
    "type": "VAEDecode",
    "pos": [
     720,
@@ -1145,20 +1354,20 @@ write_workflows() {
     46
    ],
    "flags": {},
-   "order": 24,
+   "order": 29,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "samples",
      "name": "samples",
      "type": "LATENT",
-     "link": 26
+     "link": 31
     },
     {
      "localized_name": "vae",
      "name": "vae",
      "type": "VAE",
-     "link": 27
+     "link": 32
     }
    ],
    "outputs": [
@@ -1168,7 +1377,7 @@ write_workflows() {
      "type": "IMAGE",
      "slot_index": 0,
      "links": [
-      28
+      33
      ]
     }
    ],
@@ -1179,7 +1388,7 @@ write_workflows() {
    "widgets_values": []
   },
   {
-   "id": 25,
+   "id": 30,
    "type": "SaveImage",
    "pos": [
     1080,
@@ -1190,14 +1399,14 @@ write_workflows() {
     1340
    ],
    "flags": {},
-   "order": 25,
+   "order": 30,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "images",
      "name": "images",
      "type": "IMAGE",
-     "link": 28
+     "link": 33
     }
    ],
    "outputs": [],
@@ -1229,7 +1438,7 @@ write_workflows() {
   ],
   [
    3,
-   7,
+   8,
    0,
    9,
    0,
@@ -1237,201 +1446,241 @@ write_workflows() {
   ],
   [
    4,
-   8,
-   0,
-   10,
-   0,
-   "IMAGE"
-  ],
-  [
-   5,
    9,
    0,
    10,
-   1,
-   "IMAGE"
+   0,
+   "MASK"
   ],
   [
-   6,
+   5,
    10,
    0,
    11,
    0,
-   "IMAGE"
+   "MASK"
+  ],
+  [
+   6,
+   11,
+   0,
+   12,
+   0,
+   "MASK"
   ],
   [
    7,
    12,
    0,
-   15,
+   13,
    0,
-   "STRING"
+   "MASK"
   ],
   [
    8,
-   13,
+   7,
    0,
-   15,
-   1,
-   "STRING"
+   14,
+   0,
+   "IMAGE"
   ],
   [
    9,
+   13,
+   0,
    15,
    0,
-   16,
-   0,
-   "STRING"
+   "IMAGE"
   ],
   [
    10,
    14,
    0,
+   15,
+   1,
+   "IMAGE"
+  ],
+  [
+   11,
+   15,
+   0,
    16,
+   0,
+   "IMAGE"
+  ],
+  [
+   12,
+   17,
+   0,
+   20,
+   0,
+   "STRING"
+  ],
+  [
+   13,
+   18,
+   0,
+   20,
    1,
    "STRING"
   ],
   [
-   11,
+   14,
+   20,
+   0,
+   21,
+   0,
+   "STRING"
+  ],
+  [
+   15,
+   19,
+   0,
+   21,
+   1,
+   "STRING"
+  ],
+  [
+   16,
    3,
    0,
-   17,
+   22,
    0,
    "CLIP"
   ],
   [
-   12,
-   16,
-   0,
    17,
+   21,
+   0,
+   22,
    1,
    "STRING"
   ],
   [
-   13,
-   17,
-   0,
    18,
+   22,
+   0,
+   23,
    0,
    "CONDITIONING"
   ],
   [
-   14,
+   19,
    2,
    0,
-   19,
+   24,
    0,
    "MODEL"
   ],
   [
-   15,
+   20,
    5,
    0,
-   19,
+   24,
    1,
    "MODEL_PATCH"
   ],
   [
-   16,
+   21,
    4,
    0,
-   19,
+   24,
    2,
    "VAE"
   ],
   [
-   17,
-   10,
+   22,
+   15,
    0,
-   19,
+   24,
    3,
    "IMAGE"
   ],
   [
-   18,
-   19,
+   23,
+   24,
    0,
-   20,
+   25,
    0,
    "MODEL"
-  ],
-  [
-   19,
-   7,
-   0,
-   21,
-   0,
-   "IMAGE"
-  ],
-  [
-   20,
-   21,
-   0,
-   22,
-   0,
-   "INT"
-  ],
-  [
-   21,
-   21,
-   1,
-   22,
-   1,
-   "INT"
-  ],
-  [
-   22,
-   20,
-   0,
-   23,
-   0,
-   "MODEL"
-  ],
-  [
-   23,
-   17,
-   0,
-   23,
-   1,
-   "CONDITIONING"
   ],
   [
    24,
-   18,
+   7,
    0,
-   23,
-   2,
-   "CONDITIONING"
+   26,
+   0,
+   "IMAGE"
   ],
   [
    25,
-   22,
+   26,
    0,
-   23,
-   3,
-   "LATENT"
+   27,
+   0,
+   "INT"
   ],
   [
    26,
+   26,
+   1,
+   27,
+   1,
+   "INT"
+  ],
+  [
+   27,
+   25,
+   0,
+   28,
+   0,
+   "MODEL"
+  ],
+  [
+   28,
+   22,
+   0,
+   28,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   29,
    23,
    0,
-   24,
+   28,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   30,
+   27,
+   0,
+   28,
+   3,
+   "LATENT"
+  ],
+  [
+   31,
+   28,
+   0,
+   29,
    0,
    "LATENT"
   ],
   [
-   27,
+   32,
    4,
    0,
-   24,
+   29,
    1,
    "VAE"
   ],
   [
-   28,
-   24,
+   33,
+   29,
    0,
-   25,
+   30,
    0,
    "IMAGE"
   ]

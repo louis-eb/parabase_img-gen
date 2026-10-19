@@ -39,9 +39,11 @@ So arbeitest du damit:
 4. Das beste Bild per Rechtsklick → *Save Image* sichern und in Workflow **C · Upscale** laden.
 
 **Wichtigste Regler**
-- **ControlNet-Stärke** (Node *Skizze → Geometrie*): 0.6 = lockere Interpretation, 0.9 = sehr nah an der Skizze. Start: 0.75.
-- **end_percent** (unter *advanced*): 0.8–0.9 lässt dem Modell in den letzten Schritten Freiheit für Materialdetails.
-- **Skizze direkt / Canny** (Schalter): *false* = Skizze wird invertiert und als Scribble benutzt (für Handskizzen). *true* = Canny-Kanten (für saubere Strichzeichnungen oder Screenshots aus dem 3D-Modell).
+- **Kontrollbild prüfen!** Es muss **weisse Linien auf reinem Schwarz** zeigen. Graue Flächen oder Papierstruktur → das Modell malt die Skizze ab statt ein Foto zu machen.
+- **Linien-Schwelle** (0.4–0.7): Fehlen Linien → tiefer. Papierflecken/Schatten sichtbar → höher. **Linien verdicken**: 0–3.
+- **ControlNet-Stärke** (Node *Skizze → Geometrie*): 0.6 = lockere Interpretation, 0.9 = sehr nah an der Skizze. Start: 0.7.
+- **end_percent** (unter *advanced*): 0.7–0.8 lässt dem Modell in den letzten Schritten Freiheit für Materialdetails.
+- **Schalter**: *false* = Handskizze als Scribble (oben). *true* = Canny-Kanten (für Screenshots aus dem 3D-Modell).
 - **Seed** auf *fixed* stellen, wenn du an einem Bild nur den Prompt verfeinern willst.
 
 Steps 8 · CFG 1 · res_multistep/simple · Shift 3 sind auf das 8-Step-Modell abgestimmt – nicht verändern.""",
@@ -60,16 +62,30 @@ Steps 8 · CFG 1 · res_multistep/simple · Shift 3 sind auf das 8-Step-Modell a
     img = load_image(wf, (-380, 10), "skizze_beispiel.png", title="Skizze")
     sc = scale_total(wf, (-40, 10), 1.5)
     sc["title"] = "Skizze auf ~1.5 MP skalieren"
-    inv = wf.node("ImageInvert", (-40, 150), [], inputs=[("image", "IMAGE")], outputs=[("IMAGE", "IMAGE")],
-                  size=(300, 30), title="Invertieren (Scribble)")
-    can = wf.node("Canny", (-40, 220), [0.15, 0.35], inputs=[("image", "IMAGE")], outputs=[("IMAGE", "IMAGE")],
-                  size=(300, 82), title="Canny (für saubere Linien)")
-    sw = wf.node("ComfySwitchNode", (-40, 340), [False],
+    # Skizze -> saubere Scribble-Linien: weiss auf reinem Schwarz, Papiergrau und Schatten weg.
+    # Blau-Kanal: Bleistift UND orange/rote Marker erscheinen dort dunkel.
+    bl = wf.node("ImageBlur", (-40, 150), [1, 1.0], inputs=[("image", "IMAGE")], outputs=[("IMAGE", "IMAGE")],
+                 size=(300, 82), title="Papierrauschen glätten")
+    i2m = wf.node("ImageToMask", (-40, 260), ["blue"], inputs=[("image", "IMAGE")], outputs=[("MASK", "MASK")],
+                  size=(300, 58), title="Helligkeit (Blau-Kanal)")
+    im = wf.node("InvertMask", (-40, 350), [], inputs=[("mask", "MASK")], outputs=[("MASK", "MASK")],
+                 size=(300, 30), title="Invertieren (Linien weiss)")
+    th = wf.node("ThresholdMask", (-40, 420), [0.55], inputs=[("mask", "MASK")], outputs=[("MASK", "MASK")],
+                 size=(300, 58), title="Linien-Schwelle (0.4–0.7)")
+    gr = wf.node("GrowMask", (-40, 510), [1, True], inputs=[("mask", "MASK")], outputs=[("MASK", "MASK")],
+                 size=(300, 82), title="Linien verdicken (expand)")
+    m2i = wf.node("MaskToImage", (-40, 620), [], inputs=[("mask", "MASK")], outputs=[("IMAGE", "IMAGE")],
+                  size=(300, 30))
+    can = wf.node("Canny", (300, 430), [0.15, 0.35], inputs=[("image", "IMAGE")], outputs=[("IMAGE", "IMAGE")],
+                  size=(340, 82), title="Canny (für 3D-Screenshots)")
+    sw = wf.node("ComfySwitchNode", (300, 540), [False],
                  inputs=[("on_false", "IMAGE"), ("on_true", "IMAGE")], outputs=[("output", "IMAGE")],
-                 size=(300, 82), title="Skizze direkt (false) / Canny (true)")
-    pv = preview(wf, (300, 10), size=(340, 400), title="Kontrollbild")
-    wf.link(img, 0, sc, "image"); wf.link(sc, 0, inv, "image"); wf.link(sc, 0, can, "image")
-    wf.link(inv, 0, sw, "on_false"); wf.link(can, 0, sw, "on_true"); wf.link(sw, 0, pv, "images")
+                 size=(340, 82), title="Skizze/Scribble (false) / Canny (true)")
+    pv = preview(wf, (300, 10), size=(340, 400), title="Kontrollbild – muss weisse Linien auf Schwarz zeigen")
+    wf.link(img, 0, sc, "image"); wf.link(sc, 0, bl, "image"); wf.link(bl, 0, i2m, "image")
+    wf.link(i2m, 0, im, "mask"); wf.link(im, 0, th, "mask"); wf.link(th, 0, gr, "mask"); wf.link(gr, 0, m2i, "mask")
+    wf.link(sc, 0, can, "image")
+    wf.link(m2i, 0, sw, "on_false"); wf.link(can, 0, sw, "on_true"); wf.link(sw, 0, pv, "images")
 
     # --- prompt
     wf.group("2 · Prompt", -400, 740, 1060, 640, GREEN)
@@ -85,7 +101,7 @@ Steps 8 · CFG 1 · res_multistep/simple · Shift 3 sind auf das 8-Step-Modell a
 
     # --- generate
     wf.group("3 · Generieren", 700, -40, 980, 1420, PURPLE)
-    cn = wf.node("QwenImageDiffsynthControlnet", (720, 10), [0.75, 0.0, 0.9],
+    cn = wf.node("QwenImageDiffsynthControlnet", (720, 10), [0.7, 0.0, 0.8],
                  inputs=[("model", "MODEL"), ("model_patch", "MODEL_PATCH"), ("vae", "VAE"), ("image", "IMAGE"),
                          ("mask", "MASK")],
                  outputs=[("MODEL", "MODEL")], size=(320, 160), title="Skizze → Geometrie (ControlNet)")
