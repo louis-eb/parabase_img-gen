@@ -29,6 +29,7 @@ import subprocess
 import threading
 import time
 import traceback
+import urllib.error
 import urllib.request
 
 ROOT = os.environ.get("RELAY_DIR", "/workspace/relay")
@@ -166,8 +167,15 @@ def comfy_base():
 def http_json(u, data=None, timeout=30):
     req = urllib.request.Request(u, data=json.dumps(data).encode() if data is not None else None,
                                  headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.loads(r.read())
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", "replace")
+        try:
+            return {"http_error": e.code, **json.loads(body)}
+        except ValueError:
+            return {"http_error": e.code, "body": body[:3000]}
 
 
 # ------------------------------------------------------------------ job types
@@ -266,8 +274,8 @@ def job_comfy(jid, j):
     pids = []
     for _ in range(int(j.get("repeat", 1))):
         r = http_json(base + "/prompt", {"prompt": j["prompt"], "client_id": "relay"})
-        if r.get("node_errors"):
-            return {"node_errors": r["node_errors"]}, False
+        if r.get("node_errors") or r.get("http_error") or "prompt_id" not in r:
+            return {"comfy_rejected": r}, False
         pids.append(r["prompt_id"])
     outs, t0 = [], time.time()
     pd = rdir(jid)
