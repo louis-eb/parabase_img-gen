@@ -161,9 +161,27 @@ Steps 16 · CFG 1 · euler/simple (destilliertes Modell).""",
             size=(560, 760), color="#223", bgcolor="#335")
 
     wf.group("Modelle", -1000, 760, 440, 330, GREY)
-    m = unet(wf, (-980, 810), "flux3-image-klein-bf16.safetensors")
+    m0 = unet(wf, (-980, 810), "flux3-image-klein-bf16.safetensors")
     c = clip(wf, (-980, 910), "qwen3vl_4b_int8_convrot.safetensors", "flux3")
     v = vae(wf, (-980, 1030), "flux2-vae.safetensors")
+
+    # eigene LoRAs: standardmässig überbrückt (lila), bis die Dateien existieren -> Ctrl+B
+    wf.group("Eigene LoRAs (Ctrl+B = an/aus)", -1000, 1110, 440, 330, BROWN)
+    l1 = wf.node("LoraLoaderModelOnly", (-980, 1160), ["prbstyle_v1/prbstyle_v1.safetensors", 0.8],
+                 inputs=[("model", "MODEL")], outputs=[("MODEL", "MODEL")], size=(400, 82),
+                 title="LoRA Stil · Trigger prbstyle", mode=4)
+    l2 = wf.node("LoraLoaderModelOnly", (-980, 1290), ["mtbflift_v1/mtbflift_v1.safetensors", 0.8],
+                 inputs=[("model", "MODEL")], outputs=[("MODEL", "MODEL")], size=(400, 82),
+                 title="LoRA Liftteile · Trigger mtbflift", mode=4)
+    wf.link(m0, 0, l1, "model"); wf.link(l1, 0, l2, "model")
+    m = l2
+    wf.note((-980, 1460), """**Eigene LoRAs**
+- Node markieren → **Ctrl+B** schaltet ihn ein (lila = überbrückt).
+- **strength**: 0.6–1.0. Stil eher 0.6–0.8, Liftteile 0.8–1.0.
+- Trigger-Wort an den Prompt-Anfang: `prbstyle, …` bzw. `mtbflift, …` (beide zusammen geht).
+- Andere Trainingsstufe testen: Dateiname im Node wechseln, z. B. `prbstyle_v1_000001500.safetensors`.
+- Farben, die nicht kommen sollen, einfach nicht im Prompt nennen (z. B. *grey steel* statt *orange*).""",
+            size=(400, 300), color="#432", bgcolor="#653")
 
     wf.group("1 · Referenzbilder", -400, -40, 1400, 470, BLUE)
     sk = load_image(wf, (-380, 10), "skizze_beispiel.png", title="Referenz 0 · Skizze")

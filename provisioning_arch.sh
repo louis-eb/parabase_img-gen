@@ -1754,10 +1754,10 @@ write_workflows() {
 JSONEOF
   cat > "${WORKFLOW_DIR}/B_Skizze_plus_Materialbilder.json" <<'JSONEOF'
 {
- "id": "00000000-0000-4000-8000-000000000006",
+ "id": "00000000-0000-4000-8000-000000000009",
  "revision": 0,
- "last_node_id": 16,
- "last_link_id": 17,
+ "last_node_id": 19,
+ "last_link_id": 19,
  "nodes": [
   {
    "id": 1,
@@ -1804,7 +1804,7 @@ JSONEOF
      "type": "MODEL",
      "slot_index": 0,
      "links": [
-      11
+      1
      ]
     }
    ],
@@ -1839,7 +1839,7 @@ JSONEOF
      "type": "CLIP",
      "slot_index": 0,
      "links": [
-      1
+      3
      ]
     }
    ],
@@ -1875,8 +1875,8 @@ JSONEOF
      "type": "VAE",
      "slot_index": 0,
      "links": [
-      6,
-      16
+      8,
+      18
      ]
     }
    ],
@@ -1890,6 +1890,115 @@ JSONEOF
   },
   {
    "id": 5,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    -980,
+    1160
+   ],
+   "size": [
+    400,
+    82
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 4,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      2
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "prbstyle_v1/prbstyle_v1.safetensors",
+    0.8
+   ],
+   "title": "LoRA Stil · Trigger prbstyle"
+  },
+  {
+   "id": 6,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    -980,
+    1290
+   ],
+   "size": [
+    400,
+    82
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 4,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 2
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      13
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "mtbflift_v1/mtbflift_v1.safetensors",
+    0.8
+   ],
+   "title": "LoRA Liftteile · Trigger mtbflift"
+  },
+  {
+   "id": 7,
+   "type": "MarkdownNote",
+   "pos": [
+    -980,
+    1460
+   ],
+   "size": [
+    400,
+    300
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "**Eigene LoRAs**\n- Node markieren → **Ctrl+B** schaltet ihn ein (lila = überbrückt).\n- **strength**: 0.6–1.0. Stil eher 0.6–0.8, Liftteile 0.8–1.0.\n- Trigger-Wort an den Prompt-Anfang: `prbstyle, …` bzw. `mtbflift, …` (beide zusammen geht).\n- Andere Trainingsstufe testen: Dateiname im Node wechseln, z. B. `prbstyle_v1_000001500.safetensors`.\n- Farben, die nicht kommen sollen, einfach nicht im Prompt nennen (z. B. *grey steel* statt *orange*)."
+   ],
+   "color": "#432",
+   "bgcolor": "#653"
+  },
+  {
+   "id": 8,
    "type": "LoadImage",
    "pos": [
     -380,
@@ -1900,93 +2009,7 @@ JSONEOF
     380
    ],
    "flags": {},
-   "order": 5,
-   "mode": 0,
-   "inputs": [],
-   "outputs": [
-    {
-     "localized_name": "IMAGE",
-     "name": "IMAGE",
-     "type": "IMAGE",
-     "slot_index": 0,
-     "links": [
-      7
-     ]
-    },
-    {
-     "localized_name": "MASK",
-     "name": "MASK",
-     "type": "MASK",
-     "slot_index": 1,
-     "links": null
-    }
-   ],
-   "properties": {
-    "Node name for S&R": "LoadImage",
-    "cnr_id": "comfy-core"
-   },
-   "widgets_values": [
-    "skizze_beispiel.png",
-    "image"
-   ],
-   "title": "Referenz 0 · Skizze"
-  },
-  {
-   "id": 6,
-   "type": "LoadImage",
-   "pos": [
-    -40,
-    10
-   ],
-   "size": [
-    320,
-    380
-   ],
-   "flags": {},
-   "order": 6,
-   "mode": 0,
-   "inputs": [],
-   "outputs": [
-    {
-     "localized_name": "IMAGE",
-     "name": "IMAGE",
-     "type": "IMAGE",
-     "slot_index": 0,
-     "links": [
-      8
-     ]
-    },
-    {
-     "localized_name": "MASK",
-     "name": "MASK",
-     "type": "MASK",
-     "slot_index": 1,
-     "links": null
-    }
-   ],
-   "properties": {
-    "Node name for S&R": "LoadImage",
-    "cnr_id": "comfy-core"
-   },
-   "widgets_values": [
-    "material_1.png",
-    "image"
-   ],
-   "title": "Referenz 1 · Material Wand"
-  },
-  {
-   "id": 7,
-   "type": "LoadImage",
-   "pos": [
-    300,
-    10
-   ],
-   "size": [
-    320,
-    380
-   ],
-   "flags": {},
-   "order": 7,
+   "order": 8,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -2012,13 +2035,99 @@ JSONEOF
     "cnr_id": "comfy-core"
    },
    "widgets_values": [
+    "skizze_beispiel.png",
+    "image"
+   ],
+   "title": "Referenz 0 · Skizze"
+  },
+  {
+   "id": 9,
+   "type": "LoadImage",
+   "pos": [
+    -40,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      10
+     ]
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "material_1.png",
+    "image"
+   ],
+   "title": "Referenz 1 · Material Wand"
+  },
+  {
+   "id": 10,
+   "type": "LoadImage",
+   "pos": [
+    300,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      11
+     ]
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
     "material_2.png",
     "image"
    ],
    "title": "Referenz 2 · Material Rahmen/Kante"
   },
   {
-   "id": 8,
+   "id": 11,
    "type": "LoadImage",
    "pos": [
     640,
@@ -2029,7 +2138,7 @@ JSONEOF
     380
    ],
    "flags": {},
-   "order": 8,
+   "order": 11,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -2059,7 +2168,7 @@ JSONEOF
    "title": "Stimmung (optional, nicht verbunden)"
   },
   {
-   "id": 9,
+   "id": 12,
    "type": "PrimitiveStringMultiline",
    "pos": [
     -380,
@@ -2070,7 +2179,7 @@ JSONEOF
     340
    ],
    "flags": {},
-   "order": 9,
+   "order": 12,
    "mode": 0,
    "inputs": [],
    "outputs": [
@@ -2080,7 +2189,7 @@ JSONEOF
      "type": "STRING",
      "slot_index": 0,
      "links": [
-      2
+      4
      ]
     }
    ],
@@ -2096,7 +2205,7 @@ JSONEOF
    "bgcolor": "#353"
   },
   {
-   "id": 10,
+   "id": 13,
    "type": "CLIPTextEncode",
    "pos": [
     420,
@@ -2107,20 +2216,20 @@ JSONEOF
     90
    ],
    "flags": {},
-   "order": 10,
+   "order": 13,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "clip",
      "name": "clip",
      "type": "CLIP",
-     "link": 1
+     "link": 3
     },
     {
      "localized_name": "text",
      "name": "text",
      "type": "STRING",
-     "link": 2,
+     "link": 4,
      "widget": {
       "name": "text"
      }
@@ -2133,8 +2242,8 @@ JSONEOF
      "type": "CONDITIONING",
      "slot_index": 0,
      "links": [
-      3,
-      4
+      5,
+      6
      ]
     }
    ],
@@ -2148,7 +2257,7 @@ JSONEOF
    "title": "Prompt (positiv)"
   },
   {
-   "id": 11,
+   "id": 14,
    "type": "ConditioningZeroOut",
    "pos": [
     420,
@@ -2159,14 +2268,14 @@ JSONEOF
     30
    ],
    "flags": {},
-   "order": 11,
+   "order": 14,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "conditioning",
      "name": "conditioning",
      "type": "CONDITIONING",
-     "link": 3
+     "link": 5
     }
    ],
    "outputs": [
@@ -2176,7 +2285,7 @@ JSONEOF
      "type": "CONDITIONING",
      "slot_index": 0,
      "links": [
-      5
+      7
      ]
     }
    ],
@@ -2187,7 +2296,7 @@ JSONEOF
    "widgets_values": []
   },
   {
-   "id": 12,
+   "id": 15,
    "type": "ReferenceMultiLatent",
    "pos": [
     1060,
@@ -2198,44 +2307,44 @@ JSONEOF
     230
    ],
    "flags": {},
-   "order": 12,
+   "order": 15,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "positive",
      "name": "positive",
      "type": "CONDITIONING",
-     "link": 4
+     "link": 6
     },
     {
      "localized_name": "negative",
      "name": "negative",
      "type": "CONDITIONING",
-     "link": 5
+     "link": 7
     },
     {
      "localized_name": "vae",
      "name": "vae",
      "type": "VAE",
-     "link": 6
+     "link": 8
     },
     {
      "localized_name": "images.image0",
      "name": "images.image0",
      "type": "IMAGE",
-     "link": 7
+     "link": 9
     },
     {
      "localized_name": "images.image1",
      "name": "images.image1",
      "type": "IMAGE",
-     "link": 8
+     "link": 10
     },
     {
      "localized_name": "images.image2",
      "name": "images.image2",
      "type": "IMAGE",
-     "link": 9
+     "link": 11
     },
     {
      "localized_name": "images.image3",
@@ -2251,7 +2360,7 @@ JSONEOF
      "type": "CONDITIONING",
      "slot_index": 0,
      "links": [
-      12
+      14
      ]
     },
     {
@@ -2260,7 +2369,7 @@ JSONEOF
      "type": "CONDITIONING",
      "slot_index": 1,
      "links": [
-      13
+      15
      ]
     },
     {
@@ -2269,7 +2378,7 @@ JSONEOF
      "type": "LATENT",
      "slot_index": 2,
      "links": [
-      10
+      12
      ]
     }
    ],
@@ -2284,7 +2393,7 @@ JSONEOF
    "title": "Referenzen"
   },
   {
-   "id": 13,
+   "id": 16,
    "type": "RepeatLatentBatch",
    "pos": [
     1060,
@@ -2295,14 +2404,14 @@ JSONEOF
     58
    ],
    "flags": {},
-   "order": 13,
+   "order": 16,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "samples",
      "name": "samples",
      "type": "LATENT",
-     "link": 10
+     "link": 12
     }
    ],
    "outputs": [
@@ -2312,7 +2421,7 @@ JSONEOF
      "type": "LATENT",
      "slot_index": 0,
      "links": [
-      14
+      16
      ]
     }
    ],
@@ -2326,7 +2435,7 @@ JSONEOF
    "title": "Anzahl Varianten"
   },
   {
-   "id": 14,
+   "id": 17,
    "type": "KSampler",
    "pos": [
     1060,
@@ -2337,32 +2446,32 @@ JSONEOF
     262
    ],
    "flags": {},
-   "order": 14,
+   "order": 17,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "model",
      "name": "model",
      "type": "MODEL",
-     "link": 11
+     "link": 13
     },
     {
      "localized_name": "positive",
      "name": "positive",
      "type": "CONDITIONING",
-     "link": 12
+     "link": 14
     },
     {
      "localized_name": "negative",
      "name": "negative",
      "type": "CONDITIONING",
-     "link": 13
+     "link": 15
     },
     {
      "localized_name": "latent_image",
      "name": "latent_image",
      "type": "LATENT",
-     "link": 14
+     "link": 16
     }
    ],
    "outputs": [
@@ -2372,7 +2481,7 @@ JSONEOF
      "type": "LATENT",
      "slot_index": 0,
      "links": [
-      15
+      17
      ]
     }
    ],
@@ -2391,7 +2500,7 @@ JSONEOF
    ]
   },
   {
-   "id": 15,
+   "id": 18,
    "type": "VAEDecode",
    "pos": [
     1060,
@@ -2402,20 +2511,20 @@ JSONEOF
     46
    ],
    "flags": {},
-   "order": 15,
+   "order": 18,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "samples",
      "name": "samples",
      "type": "LATENT",
-     "link": 15
+     "link": 17
     },
     {
      "localized_name": "vae",
      "name": "vae",
      "type": "VAE",
-     "link": 16
+     "link": 18
     }
    ],
    "outputs": [
@@ -2425,7 +2534,7 @@ JSONEOF
      "type": "IMAGE",
      "slot_index": 0,
      "links": [
-      17
+      19
      ]
     }
    ],
@@ -2436,7 +2545,7 @@ JSONEOF
    "widgets_values": []
   },
   {
-   "id": 16,
+   "id": 19,
    "type": "SaveImage",
    "pos": [
     1440,
@@ -2447,14 +2556,14 @@ JSONEOF
     1220
    ],
    "flags": {},
-   "order": 16,
+   "order": 19,
    "mode": 0,
    "inputs": [
     {
      "localized_name": "images",
      "name": "images",
      "type": "IMAGE",
-     "link": 17
+     "link": 19
     }
    ],
    "outputs": [],
@@ -2470,137 +2579,153 @@ JSONEOF
  "links": [
   [
    1,
-   3,
-   0,
-   10,
-   0,
-   "CLIP"
-  ],
-  [
    2,
-   9,
    0,
-   10,
-   1,
-   "STRING"
-  ],
-  [
-   3,
-   10,
-   0,
-   11,
-   0,
-   "CONDITIONING"
-  ],
-  [
-   4,
-   10,
-   0,
-   12,
-   0,
-   "CONDITIONING"
-  ],
-  [
    5,
-   11,
-   0,
-   12,
-   1,
-   "CONDITIONING"
-  ],
-  [
-   6,
-   4,
-   0,
-   12,
-   2,
-   "VAE"
-  ],
-  [
-   7,
-   5,
-   0,
-   12,
-   3,
-   "IMAGE"
-  ],
-  [
-   8,
-   6,
-   0,
-   12,
-   4,
-   "IMAGE"
-  ],
-  [
-   9,
-   7,
-   0,
-   12,
-   5,
-   "IMAGE"
-  ],
-  [
-   10,
-   12,
-   2,
-   13,
-   0,
-   "LATENT"
-  ],
-  [
-   11,
-   2,
-   0,
-   14,
    0,
    "MODEL"
   ],
   [
-   12,
+   2,
+   5,
+   0,
+   6,
+   0,
+   "MODEL"
+  ],
+  [
+   3,
+   3,
+   0,
+   13,
+   0,
+   "CLIP"
+  ],
+  [
+   4,
    12,
    0,
+   13,
+   1,
+   "STRING"
+  ],
+  [
+   5,
+   13,
+   0,
    14,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   6,
+   13,
+   0,
+   15,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   7,
+   14,
+   0,
+   15,
    1,
    "CONDITIONING"
   ],
   [
-   13,
+   8,
+   4,
+   0,
+   15,
+   2,
+   "VAE"
+  ],
+  [
+   9,
+   8,
+   0,
+   15,
+   3,
+   "IMAGE"
+  ],
+  [
+   10,
+   9,
+   0,
+   15,
+   4,
+   "IMAGE"
+  ],
+  [
+   11,
+   10,
+   0,
+   15,
+   5,
+   "IMAGE"
+  ],
+  [
    12,
-   1,
+   15,
+   2,
+   16,
+   0,
+   "LATENT"
+  ],
+  [
+   13,
+   6,
+   0,
+   17,
+   0,
+   "MODEL"
+  ],
+  [
    14,
+   15,
+   0,
+   17,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   15,
+   15,
+   1,
+   17,
    2,
    "CONDITIONING"
   ],
   [
-   14,
-   13,
+   16,
+   16,
    0,
-   14,
+   17,
    3,
    "LATENT"
   ],
   [
-   15,
-   14,
+   17,
+   17,
    0,
-   15,
+   18,
    0,
    "LATENT"
   ],
   [
-   16,
+   18,
    4,
    0,
-   15,
+   18,
    1,
    "VAE"
   ],
   [
-   17,
-   15,
+   19,
+   18,
    0,
-   16,
+   19,
    0,
    "IMAGE"
   ]
@@ -2621,6 +2746,19 @@ JSONEOF
   },
   {
    "id": 2,
+   "title": "Eigene LoRAs (Ctrl+B = an/aus)",
+   "bounding": [
+    -1000,
+    1110,
+    440,
+    330
+   ],
+   "color": "#8a6a3a",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
    "title": "1 · Referenzbilder",
    "bounding": [
     -400,
@@ -2633,7 +2771,7 @@ JSONEOF
    "flags": {}
   },
   {
-   "id": 3,
+   "id": 4,
    "title": "2 · Prompt",
    "bounding": [
     -400,
@@ -2646,7 +2784,7 @@ JSONEOF
    "flags": {}
   },
   {
-   "id": 4,
+   "id": 5,
    "title": "3 · Generieren",
    "bounding": [
     1040,
