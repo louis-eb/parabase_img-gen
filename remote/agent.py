@@ -230,6 +230,7 @@ def job_train(jid, j):
            "HF_HUB_ENABLE_HF_TRANSFER": "1"}
     rc = run_proc(jid, f'"{AITK_PY}" run.py "{cfg}"', cwd=AITK_DIR, env=env, on_tick=tick, tick=120)
     tick()
+    link_models()
     copied = []
     dst = os.path.join(COMFY_DIR, "models", "loras", name)
     os.makedirs(dst, exist_ok=True)
@@ -239,7 +240,24 @@ def job_train(jid, j):
     return {"returncode": rc, "copied_to_comfy": copied}, rc == 0
 
 
+# files the toolkit downloaded -> ComfyUI names (saves downloading them twice)
+LINKS = {"diffusion_models/flux3_image_klein_bf16.safetensors": "diffusion_models/flux3-image-klein-base-bf16.safetensors",
+         "text_encoders/qwen3vl_4b_bf16.safetensors": "text_encoders/qwen3vl_4b_bf16.safetensors",
+         "vae/flux2-vae.safetensors": "vae/flux2-vae.safetensors"}
+
+
+def link_models():
+    src_root = os.environ.get("AITK_MODELS", "/workspace/aitk_models")
+    for src, dst in LINKS.items():
+        s, d = os.path.join(src_root, src), os.path.join(COMFY_DIR, "models", dst)
+        if os.path.exists(s) and not os.path.exists(d):
+            os.makedirs(os.path.dirname(d), exist_ok=True)
+            os.symlink(s, d)
+            log("linked", d)
+
+
 def job_comfy(jid, j):
+    link_models()
     base = comfy_base()
     if not base:
         return {"error": "ComfyUI not reachable"}, False

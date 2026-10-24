@@ -8,6 +8,7 @@
 #   GITHUB_TOKEN        = fine-grained token, only for the private data repo, "Contents: read and write"
 #   DATA_REPO           = owner/name of the private data repo, e.g. louis-eb/parabase-lora-data
 #   AUTO_STOP_MIN       = optional, minutes without activity before the instance stops itself (default 40, 0 = off)
+#   SETUP               = optional, "train" (default, minimal downloads) or "full" (all ComfyUI models for A/B/C)
 #
 # Log: /workspace/provisioning_lora.log
 set -uo pipefail
@@ -20,8 +21,15 @@ LOG="${WORKSPACE_DIR}/provisioning_lora.log"
 log() { echo "[lora-provisioning] $*" | tee -a "$LOG"; }
 MAINPY="/venv/main/bin/python"; [[ -x "$MAINPY" ]] || MAINPY="$(command -v python3)"
 
+# SETUP=train (Standard): nur was Training + LoRA-Test brauchen (~35 GB Downloads statt ~85 GB).
+#   ComfyUI bekommt nur das destillierte Klein; Base, Text-Encoder und VAE lädt das AI Toolkit
+#   und der Agent verlinkt sie danach in ComfyUI. Workflows A/C haben dann keine Modelle.
+# SETUP=full: komplettes ComfyUI-Setup (A/B/C) zusätzlich.
+SETUP="${SETUP:-train}"
+if [[ "$SETUP" == "train" ]]; then export ONLY_MODELS="${ONLY_MODELS:-flux3-image-klein-bf16}"; fi
+
 # 1 · ComfyUI, models, workflows A/B/C
-log "ComfyUI-Setup (provisioning_arch.sh) …"
+log "ComfyUI-Setup (provisioning_arch.sh, SETUP=${SETUP}) …"
 curl -fsSL "${RAW}/provisioning_arch.sh" -o /tmp/provisioning_arch.sh && bash /tmp/provisioning_arch.sh
 
 # 2 · Base model in ComfyUI too, to compare LoRAs on base vs distilled
@@ -32,7 +40,7 @@ dl() {  # repo path subfolder
   hf download "$1" "$2" --local-dir "$tmp" >>"$LOG" 2>&1 && mv "${tmp}/$2" "$dest"
   local rc=$?; rm -rf "$tmp"; return $rc
 }
-if [[ -n "${HF_TOKEN:-}" ]]; then
+if [[ -n "${HF_TOKEN:-}" && "$SETUP" == "full" ]]; then
   dl black-forest-labs/flux-3-image-klein-comfy diffusion_models/flux3-image-klein-base-bf16.safetensors diffusion_models \
     || log "WARNUNG: Klein-Base für ComfyUI nicht geladen"
 fi

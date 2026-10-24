@@ -99,10 +99,21 @@ download_models() {
     export HF_TOKEN
   fi
   export HF_HUB_ENABLE_HF_TRANSFER=0
-  printf '%s\n' "${MODELS[@]}" | xargs -P "$MAX_PARALLEL" -I{} bash -c 'IFS="|" read -r r p s <<< "{}"; download_one "$r" "$p" "$s"'
+  local list=("${MODELS[@]}")
+  if [[ -n "${ONLY_MODELS:-}" ]]; then   # z. B. ONLY_MODELS="klein-bf16,flux2-vae" spart Downloads
+    list=()
+    local m f
+    for m in "${MODELS[@]}"; do
+      IFS=',' read -ra pats <<< "$ONLY_MODELS"
+      for f in "${pats[@]}"; do [[ "$m" == *"$f"* ]] && { list+=("$m"); break; }; done
+    done
+    log "Nur ausgewählte Modelle (${ONLY_MODELS}): ${#list[@]} Dateien"
+  fi
+  [[ ${#list[@]} -eq 0 ]] && return 0
+  printf '%s\n' "${list[@]}" | xargs -P "$MAX_PARALLEL" -I{} bash -c 'IFS="|" read -r r p s <<< "{}"; download_one "$r" "$p" "$s"'
 
   # Fallback: falls die bf16-Version von Klein nicht verfügbar ist, die int8-Variante nehmen
-  if [[ ! -s "${MODELS_DIR}/diffusion_models/flux3-image-klein-bf16.safetensors" && -n "${HF_TOKEN:-}" ]]; then
+  if [[ ! -s "${MODELS_DIR}/diffusion_models/flux3-image-klein-bf16.safetensors" && -n "${HF_TOKEN:-}" && "${ONLY_MODELS:-klein}" == *klein* ]]; then
     log "bf16 Klein fehlt – lade int8-Variante als Ersatz"
     if download_one "black-forest-labs/flux-3-image-klein-comfy" "diffusion_models/flux3-image-klein-int8-convrot.safetensors" "diffusion_models"; then
       sed -i 's/flux3-image-klein-bf16.safetensors/flux3-image-klein-int8-convrot.safetensors/g' \
