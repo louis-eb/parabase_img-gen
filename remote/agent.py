@@ -256,7 +256,11 @@ LINKS = {"diffusion_models/flux3_image_klein_bf16.safetensors": "diffusion_model
 
 def link_models():
     src_root = os.environ.get("AITK_MODELS", "/workspace/aitk_models")
-    for src, dst in LINKS.items():
+    pairs = dict(LINKS)
+    for cat in ("text_encoders", "vae"):  # whatever variant the toolkit picked (bf16 or fp8)
+        for f in glob.glob(os.path.join(src_root, cat, "*.safetensors")):
+            pairs.setdefault(f"{cat}/{os.path.basename(f)}", f"{cat}/{os.path.basename(f)}")
+    for src, dst in pairs.items():
         s, d = os.path.join(src_root, src), os.path.join(COMFY_DIR, "models", dst)
         if os.path.exists(s) and not os.path.exists(d):
             os.makedirs(os.path.dirname(d), exist_ok=True)

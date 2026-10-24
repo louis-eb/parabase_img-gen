@@ -12,7 +12,7 @@ BASE = dict(unet="flux3-image-klein-base-bf16.safetensors", steps=28, cfg=3.5, s
 
 def graph(prompt, loras=(), refs=(), batch=4, seed=1, width=1024, height=1280, megapixels=1.5,
           model=DISTILLED, prefix="relay/klein", negative="",
-          text_encoder="qwen3vl_4b_bf16.safetensors"):
+          text_encoder="qwen3vl_4b_fp8_scaled.safetensors"):
     g, n = {}, [0]
 
     def add(cls, **inputs):
