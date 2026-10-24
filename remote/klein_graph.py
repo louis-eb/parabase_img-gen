@@ -11,7 +11,8 @@ BASE = dict(unet="flux3-image-klein-base-bf16.safetensors", steps=28, cfg=3.5, s
 
 
 def graph(prompt, loras=(), refs=(), batch=4, seed=1, width=1024, height=1280, megapixels=1.5,
-          model=DISTILLED, prefix="relay/klein", negative=""):
+          model=DISTILLED, prefix="relay/klein", negative="",
+          text_encoder="qwen3vl_4b_bf16.safetensors"):
     g, n = {}, [0]
 
     def add(cls, **inputs):
@@ -22,7 +23,7 @@ def graph(prompt, loras=(), refs=(), batch=4, seed=1, width=1024, height=1280, m
     m = add("UNETLoader", unet_name=model["unet"], weight_dtype="default")
     for name, strength in loras:
         m = add("LoraLoaderModelOnly", model=m, lora_name=name, strength_model=strength)
-    clip = add("CLIPLoader", clip_name="qwen3vl_4b_int8_convrot.safetensors", type="flux3", device="default")
+    clip = add("CLIPLoader", clip_name=text_encoder, type="flux3", device="default")
     vae = add("VAELoader", vae_name="flux2-vae.safetensors")
     pos = add("CLIPTextEncode", clip=clip, text=prompt)
     if negative and model["cfg"] > 1:
