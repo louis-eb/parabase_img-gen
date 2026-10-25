@@ -29,7 +29,7 @@ def qwen_edit(image, prompt, negative="", seed=1, steps=30, cfg=4.0, mp=1.2, pre
     return g
 
 
-def flux2_dev(ref, prompt, extra_refs=(), loras=(), init=None, denoise=1.0, seed=1, steps=28, guidance=4.0, mp=1.4, prefix="F_flux2/flux2",
+def flux2_dev(ref, prompt, extra_refs=(), loras=(), init=None, denoise=1.0, sampler_name="euler", seed=1, steps=28, guidance=4.0, mp=1.4, prefix="F_flux2/flux2",
               unet="flux2_dev_fp8mixed.safetensors", te="mistral_3_small_flux2_fp4_mixed.safetensors"):
     g, add = _b()
     m = add("UNETLoader", unet_name=unet, weight_dtype="default")
@@ -46,7 +46,7 @@ def flux2_dev(ref, prompt, extra_refs=(), loras=(), init=None, denoise=1.0, seed
         pos = add("ReferenceLatent", conditioning=pos, latent=add("VAEEncode", pixels=ri, vae=vae))
     pos = add("FluxGuidance", conditioning=pos, guidance=guidance)
     guider = add("BasicGuider", model=m, conditioning=pos)
-    sampler = add("KSamplerSelect", sampler_name="euler")
+    sampler = add("KSamplerSelect", sampler_name=sampler_name)
     sig = add("Flux2Scheduler", steps=steps, width=[size[0], 0], height=[size[0], 1])
     noise = add("RandomNoise", noise_seed=seed)
     lat = add("EmptyFlux2LatentImage", width=[size[0], 0], height=[size[0], 1], batch_size=1)
