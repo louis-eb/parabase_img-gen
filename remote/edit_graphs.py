@@ -29,7 +29,7 @@ def qwen_edit(image, prompt, negative="", seed=1, steps=30, cfg=4.0, mp=1.2, pre
     return g
 
 
-def flux2_dev(ref, prompt, extra_refs=(), loras=(), seed=1, steps=28, guidance=4.0, mp=1.4, prefix="F_flux2/flux2",
+def flux2_dev(ref, prompt, extra_refs=(), loras=(), init=None, denoise=1.0, seed=1, steps=28, guidance=4.0, mp=1.4, prefix="F_flux2/flux2",
               unet="flux2_dev_fp8mixed.safetensors", te="mistral_3_small_flux2_fp4_mixed.safetensors"):
     g, add = _b()
     m = add("UNETLoader", unet_name=unet, weight_dtype="default")
@@ -50,6 +50,10 @@ def flux2_dev(ref, prompt, extra_refs=(), loras=(), seed=1, steps=28, guidance=4
     sig = add("Flux2Scheduler", steps=steps, width=[size[0], 0], height=[size[0], 1])
     noise = add("RandomNoise", noise_seed=seed)
     lat = add("EmptyFlux2LatentImage", width=[size[0], 0], height=[size[0], 1], batch_size=1)
+    if init:  # image-to-image: start from an existing image, only the last part of the schedule
+        ii = add("ImageScale", image=add("LoadImage", image=init), upscale_method="lanczos", width=[size[0], 0], height=[size[0], 1], crop="disabled")
+        lat = add("VAEEncode", pixels=ii, vae=vae)
+        sig = [add("SplitSigmasDenoise", sigmas=sig, denoise=denoise)[0], 1]
     out = add("SamplerCustomAdvanced", noise=noise, guider=guider, sampler=sampler, sigmas=sig, latent_image=lat)
     add("SaveImage", images=add("VAEDecode", samples=out, vae=vae), filename_prefix=prefix)
     return g
