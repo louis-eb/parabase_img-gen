@@ -29,10 +29,12 @@ def qwen_edit(image, prompt, negative="", seed=1, steps=30, cfg=4.0, mp=1.2, pre
     return g
 
 
-def flux2_dev(ref, prompt, extra_refs=(), seed=1, steps=28, guidance=4.0, mp=1.4, prefix="F_flux2/flux2",
+def flux2_dev(ref, prompt, extra_refs=(), loras=(), seed=1, steps=28, guidance=4.0, mp=1.4, prefix="F_flux2/flux2",
               unet="flux2_dev_fp8mixed.safetensors", te="mistral_3_small_flux2_fp4_mixed.safetensors"):
     g, add = _b()
     m = add("UNETLoader", unet_name=unet, weight_dtype="default")
+    for name, st in loras:
+        m = add("LoraLoaderModelOnly", model=m, lora_name=name, strength_model=st)
     clip = add("CLIPLoader", clip_name=te, type="flux2", device="default")
     vae = add("VAELoader", vae_name="flux2-vae.safetensors")
     img = add("ImageScaleToTotalPixels", image=add("LoadImage", image=ref), upscale_method="lanczos", megapixels=mp, resolution_steps=16)
