@@ -304,7 +304,129 @@ So arbeitest du damit:
     return wf
 
 
+LEGENDE_E = 'The flat colours in <ref_image_0> are only a material key and must not appear in the photograph: red = salvaged galvanised chairlift pylon shaft (80 cm tapering to 50 cm); green = salvaged green-painted drag-lift pylon tube (32 cm); orange = salvaged box-section pylon cross-arm or head frame; yellow = salvaged sheave train of rubber-lined rollers; purple = salvaged spoked lift bullwheel; navy = salvaged galvanised round-tube station frame or strut; cyan = salvaged galvanised grating walkway with tubular railing or ladder; magenta = salvaged chairlift chair or hanger with rope grip; teal = steel cable or slender tension rod; brown = old concrete foundation block with anchor bolts; olive = larch timber: rough-sawn beam, debarked log or planks; blue = large glass panes in slim frames; grey = new plain steel plates, brackets and sections; white = existing building: concrete slabs and walls. Small coloured spheres mark connection points and are replaced by real joints: small peach sphere = a heavy bolted two-part clamp collar; small lavender sphere = a pinned clevis joint with a large steel pin; small pale yellow sphere = a turnbuckle and cable anchor with thimble; small maroon sphere = a bolted flange or end plate with a ring of bolts; small mint sphere = a bearing: elastomeric pad and sliding steel plate.'
+SZENE_E = 'mtbflift, documentary architectural photograph of the scene in <ref_image_0>. Keep the exact geometry, proportions, positions and camera angle of <ref_image_0>; the thin black lines in <ref_image_1> show the exact edges. A two-storey glazed buffer zone between the inner glass facade and the outer glass skin, built from salvaged chairlift parts.'
+REGELN_E = 'Every connection is explicit and load-bearing: bolts pass through drilled plates with nuts and washers, pins sit in clevis forks with split pins, cables end in thimbles, swaged fittings or turnbuckles, timber sits in bolted steel shoes; nothing is glued, nothing floats, nothing is hidden. The salvaged chairlift parts keep their weathered galvanising, old paint, stencilled numbers and wear; the few new parts are plain bright steel plates, bolts, pins and threaded rods. Tensioned and suspended structure: thin stainless steel cables with turnbuckles, slender tension rods with clevis forks, crossed diagonal bracing cables.'
+STIMMUNG_E = 'At night, black sky behind the glass, photographed with a direct on-camera flash: hard specular highlights on galvanised steel and cables, deep black shadows, reflections of the flash in the glass, raw and documentary. large-format camera, the connection fills the frame, every bolt, weld seam, thread and zinc crystal sharp, straight verticals.'
+
+
+def klein_models(wf, x, y, lora_parts=0.9, style_on=False, te="qwen3vl_4b_int8_convrot.safetensors"):
+    wf.group("Modelle + eigene LoRAs", x, y, 460, 520, GREY)
+    m0 = unet(wf, (x + 20, y + 50), "flux3-image-klein-bf16.safetensors")
+    l1 = wf.node("LoraLoaderModelOnly", (x + 20, y + 150), ["mtbflift_v1/mtbflift_v1.safetensors", lora_parts],
+                 inputs=[("model", "MODEL")], outputs=[("MODEL", "MODEL")], size=(420, 82), title="LoRA Liftteile · mtbflift")
+    l2 = wf.node("LoraLoaderModelOnly", (x + 20, y + 260), ["prbstyle_v1/prbstyle_v1_000001000.safetensors", 0.4],
+                 inputs=[("model", "MODEL")], outputs=[("MODEL", "MODEL")], size=(420, 82), title="LoRA Stil · prbstyle",
+                 mode=0 if style_on else 4)
+    wf.link(m0, 0, l1, "model"); wf.link(l1, 0, l2, "model")
+    c = clip(wf, (x + 20, y + 370), te, "flux3")
+    v = vae(wf, (x + 20, y + 470), "flux2-vae.safetensors")
+    return l2, c, v
+
+
+def prompt_chain(wf, x, y, blocks):
+    """blocks: list of (title, text). Joined with spaces through StringConcatenate nodes."""
+    nodes = [text_block(wf, (x, y + i * 230), t, title, size=(620, 200)) for i, (title, t) in enumerate(blocks)]
+    cur = nodes[0]
+    for i, n in enumerate(nodes[1:]):
+        cc = concat(wf, (x + 660, y + 230 * (i + 1)), " ")
+        wf.link(cur, 0, cc, "string_a"); wf.link(n, 0, cc, "string_b"); cur = cc
+    return cur
+
+
+PROMPT_D = 'mtbflift, documentary architectural photograph inside a three-metre deep, two-storey thermal buffer zone between the inner glass facade and a continuous outer glass skin. A single line of salvaged chairlift pylons stands along the centre of the zone, one pylon per 3.5 metre module, each a massive galvanised steel tube about 70 cm in diameter with a flared base flange on heavy anchor bolts; at the top its original box-section cross-arm spans the zone with sheave trains and a grated walkway gallery. Tensioned and suspended structure: thin stainless steel cables with turnbuckles, slender tension rods with clevis forks, crossed diagonal bracing cables. Larch plank floor, grey linen curtains. At night, black sky behind the glass, photographed with a direct on-camera flash: hard specular highlights on galvanised steel and cables, deep black shadows, reflections of the flash in the glass, raw and documentary. Large-format camera, straight verticals, nearest pylon large in the foreground, bolts and weld seams sharp.'
+SZENE_F = 'mtbflift, documentary architectural photograph. Salvaged chairlift parts reused as a building structure: galvanised pylons, box-section cross-arms, sheave trains of rubber-lined rollers, grated walkways. Every connection is explicit and load-bearing: bolts pass through drilled plates with nuts and washers, pins sit in clevis forks with split pins, cables end in thimbles, swaged fittings or turnbuckles, timber sits in bolted steel shoes; nothing is glued, nothing floats, nothing is hidden. The salvaged chairlift parts keep their weathered galvanising, old paint, stencilled numbers and wear; the few new parts are plain bright steel plates, bolts, pins and threaded rods. Keep the composition, perspective and proportions of the input image.'
+
+
+def build_D():
+    wf = WF()
+    wf.note((-1000, -40), """## D · LoRA-Test (Text → Bild, FLUX.3 Klein)
+- **Liftteile** `mtbflift`: Stärke 0.8–1.0. Trigger an den Prompt-Anfang.
+- **Stil** `prbstyle`: standardmässig überbrückt (lila). Ctrl+B = an, Stärke 0.3–0.6.
+- Andere Trainingsstufe: Dateiname im Loader wechseln (z. B. `mtbflift_v1_000002000`).
+- Vergleich ohne LoRA: beide Loader mit Ctrl+B überbrücken, gleicher Seed (fixed).""", size=(460, 300))
+    m, c, v = klein_models(wf, -1000, 300)
+    tp = text_block(wf, (-480, -40), PROMPT_D, "Prompt", size=(560, 320))
+    pe = clip_encode(wf, (-480, 320), "Prompt (positiv)"); ng = zero_out(wf, (-480, 450))
+    wf.link(c, 0, pe, "clip"); wf.link(tp, 0, pe, "text"); wf.link(pe, 0, ng, "conditioning")
+    lat = wf.node("EmptyFlux2LatentImage", (-480, 540), [1152, 1440, 4], outputs=[("LATENT", "LATENT")],
+                  size=(300, 106), title="Format · Anzahl")
+    ks = ksampler(wf, (120, -40), 41, 16, 1, "euler", "simple", 1.0, control="fixed")
+    wf.link(m, 0, ks, "model"); wf.link(pe, 0, ks, "positive"); wf.link(ng, 0, ks, "negative"); wf.link(lat, 0, ks, "latent_image")
+    dec = vae_decode(wf, (120, 260)); wf.link(ks, 0, dec, "samples"); wf.link(v, 0, dec, "vae")
+    sv = save_image(wf, (480, -40), "D_lora/test", size=(700, 900)); wf.link(dec, 0, sv, "images")
+    return wf
+
+
+def build_E():
+    wf = WF()
+    wf.note((-1000, -40), """## E · 3D-Szene mit Farbcode → Foto (FLUX.3 Klein + Liftteile-LoRA)
+1. **Referenz 0 = Farbcode-Render** aus dem 3D: unbeleuchtet, eine flache Farbe pro Bauteil-Typ, kleine farbige Kugeln an Knotenstellen. Bestimmt Geometrie, Ausschnitt und Bildformat.
+2. **Referenz 1 = Linien-Render** (Kanten/Outline aus dem 3D, schwarz auf weiss) aus derselben Kamera – hält Proportionen und Kanten. Optional.
+3. **Referenz 2 = Knoten-Referenz** (optional, nicht verbunden): Foto eines Knotens, im Text mit `<ref_image_2>` ansprechen.
+4. Die vier Textblöcke werden zusammengesetzt: **Szene**, **Legende** (Farbe → Bauteil), **Regeln** (Knoten-Logik), **Stimmung**. Legende an deine Farben anpassen, nicht benutzte Farben löschen.
+5. **Run** → 4 Varianten. Ausgewähltes Bild in **F · Veredeln** oder **C · Upscale** weiter.
+
+Tipps: Wenn Farben im Bild durchschlagen → im Szene-Block „photograph, real materials only“ betonen oder `megapixels` an *Referenzen* senken. Wenn die Geometrie wegläuft → Linien-Render kontrastreicher, Satz „keep the exact geometry“ nach vorne.""",
+            size=(460, 620), color="#223", bgcolor="#335")
+    m, c, v = klein_models(wf, -1000, 620)
+    wf.group("1 · Referenzbilder aus dem 3D", -500, -40, 1060, 470, BLUE)
+    r0 = load_image(wf, (-480, 10), "farbcode.png", title="Referenz 0 · Farbcode-Render")
+    r1 = load_image(wf, (-140, 10), "linien.png", title="Referenz 1 · Linien-Render")
+    r2 = load_image(wf, (200, 10), "knoten.png", title="Referenz 2 · Knoten (optional, nicht verbunden)")
+    wf.group("2 · Prompt-Bausteine", -500, 460, 1060, 980, GREEN)
+    full = prompt_chain(wf, -480, 510, [("Szene", SZENE_E), ("Legende Farbe → Bauteil", LEGENDE_E),
+                                         ("Regeln für Knoten", REGELN_E), ("Stimmung", STIMMUNG_E)])
+    pe = clip_encode(wf, (180, 1250), "Prompt (positiv)"); ng = zero_out(wf, (180, 1370))
+    wf.link(c, 0, pe, "clip"); wf.link(full, 0, pe, "text"); wf.link(pe, 0, ng, "conditioning")
+    wf.group("3 · Generieren", 600, -40, 1100, 1300, PURPLE)
+    ref = wf.node("ReferenceMultiLatent", (620, 10), ["resize", 1.6],
+                  inputs=[("positive", "CONDITIONING"), ("negative", "CONDITIONING"), ("vae", "VAE"),
+                          ("images.image0", "IMAGE"), ("images.image1", "IMAGE"), ("images.image2", "IMAGE")],
+                  outputs=[("positive", "CONDITIONING"), ("negative", "CONDITIONING"), ("empty_latent", "LATENT")],
+                  size=(340, 210), title="Referenzen")
+    wf.link(pe, 0, ref, "positive"); wf.link(ng, 0, ref, "negative"); wf.link(v, 0, ref, "vae")
+    wf.link(r0, 0, ref, "images.image0"); wf.link(r1, 0, ref, "images.image1")
+    rb = wf.node("RepeatLatentBatch", (620, 270), [4], inputs=[("samples", "LATENT")], outputs=[("LATENT", "LATENT")],
+                 size=(340, 58), title="Anzahl Varianten")
+    wf.link(ref, 2, rb, "samples")
+    ks = ksampler(wf, (620, 380), 7, 16, 1, "euler", "simple", 1.0)
+    wf.link(m, 0, ks, "model"); wf.link(ref, 0, ks, "positive"); wf.link(ref, 1, ks, "negative"); wf.link(rb, 0, ks, "latent_image")
+    dec = vae_decode(wf, (620, 680)); wf.link(ks, 0, dec, "samples"); wf.link(v, 0, dec, "vae")
+    sv = save_image(wf, (1000, 10), "E_3d/variante", size=(680, 1220)); wf.link(dec, 0, sv, "images")
+    return wf
+
+
+def build_F():
+    wf = WF()
+    wf.note((-1000, -40), """## F · Veredeln (Bild → Bild, FLUX.3 Klein + Liftteile-LoRA)
+Für Bilder aus **A** (Z-Image mit Linien-ControlNet, Geometrie exakt) oder **E**: Klein zeichnet mit dem Liftteile-LoRA die Bauteile und Knoten neu, Komposition bleibt.
+- **denoise** am KSampler: 0.30 = fast nur Oberflächen, 0.45 = Knoten werden neu gezeichnet, 0.60 = freier.
+- Prompt: Bauteile und Knoten konkret benennen (Regeln-Block aus E hineinkopieren).""", size=(460, 300))
+    m, c, v = klein_models(wf, -1000, 300)
+    img = load_image(wf, (-480, -40), "ausgewaehlt.png", title="Bild zum Veredeln")
+    sc = scale_total(wf, (-480, 360), 1.6); sc["title"] = "Arbeitsgrösse (megapixels)"
+    wf.link(img, 0, sc, "image")
+    tp = text_block(wf, (-480, 500), SZENE_F, "Prompt", size=(560, 300))
+    pe = clip_encode(wf, (-480, 840), "Prompt (positiv)"); ng = zero_out(wf, (-480, 960))
+    wf.link(c, 0, pe, "clip"); wf.link(tp, 0, pe, "text"); wf.link(pe, 0, ng, "conditioning")
+    enc = vae_encode(wf, (120, -40)); wf.link(sc, 0, enc, "pixels"); wf.link(v, 0, enc, "vae")
+    rb = wf.node("RepeatLatentBatch", (120, 40), [2], inputs=[("samples", "LATENT")], outputs=[("LATENT", "LATENT")],
+                 size=(300, 58), title="Anzahl Varianten")
+    wf.link(enc, 0, rb, "samples")
+    ks = ksampler(wf, (120, 140), 7, 16, 1, "euler", "simple", 0.45)
+    ks["title"] = "KSampler (denoise = wie stark neu gezeichnet wird)"
+    wf.link(m, 0, ks, "model"); wf.link(pe, 0, ks, "positive"); wf.link(ng, 0, ks, "negative"); wf.link(rb, 0, ks, "latent_image")
+    dec = vae_decode(wf, (120, 440)); wf.link(ks, 0, dec, "samples"); wf.link(v, 0, dec, "vae")
+    sv = save_image(wf, (480, -40), "F_veredelt/bild", size=(700, 900)); wf.link(dec, 0, sv, "images")
+    cmp_ = wf.node("ImageCompare", (1200, -40), [], inputs=[("image_a", "IMAGE"), ("image_b", "IMAGE")], size=(620, 700),
+                   title="Vorher / Nachher")
+    wf.link(sc, 0, cmp_, "image_a"); wf.link(dec, 0, cmp_, "image_b")
+    return wf
+
+
 for name, fn in [("A_Skizze_zu_Stimmung.json", build_A), ("B_Skizze_plus_Materialbilder.json", build_B),
-                 ("C_Upscale.json", build_C)]:
+                 ("C_Upscale.json", build_C),
+                 ("D_LoRA_Test.json", build_D), ("E_3D_Farbcode.json", build_E), ("F_Veredeln.json", build_F)]:
     fn().save(os.path.join(OUT, name))
     print("wrote", name)

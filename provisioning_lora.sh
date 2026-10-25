@@ -8,7 +8,11 @@
 #   GITHUB_TOKEN        = fine-grained token, only for the private data repo, "Contents: read and write"
 #   DATA_REPO           = owner/name of the private data repo, e.g. louis-eb/parabase-lora-data
 #   AUTO_STOP_MIN       = optional, minutes without activity before the instance stops itself (default 40, 0 = off)
-#   SETUP               = optional, "train" (default, minimal downloads) or "full" (all ComfyUI models for A/B/C)
+#   SETUP               = optional:
+#                           "use"   (Standard) alle ComfyUI-Modelle für A–E, LoRAs aus dem Release, kein Training-Setup
+#                           "train" nur was ein neues LoRA-Training braucht (~35 GB)
+#                           "full"  beides
+#   LORA_RELEASE        = optional, Release-Tag im Daten-Repo mit den LoRA-Dateien (Standard loras-v1)
 #
 # Log: /workspace/provisioning_lora.log
 set -uo pipefail
@@ -21,11 +25,7 @@ LOG="${WORKSPACE_DIR}/provisioning_lora.log"
 log() { echo "[lora-provisioning] $*" | tee -a "$LOG"; }
 MAINPY="/venv/main/bin/python"; [[ -x "$MAINPY" ]] || MAINPY="$(command -v python3)"
 
-# SETUP=train (Standard): nur was Training + LoRA-Test brauchen (~35 GB Downloads statt ~85 GB).
-#   ComfyUI bekommt nur das destillierte Klein; Base, Text-Encoder und VAE lädt das AI Toolkit
-#   und der Agent verlinkt sie danach in ComfyUI. Workflows A/C haben dann keine Modelle.
-# SETUP=full: komplettes ComfyUI-Setup (A/B/C) zusätzlich.
-SETUP="${SETUP:-train}"
+SETUP="${SETUP:-use}"
 if [[ "$SETUP" == "train" ]]; then export ONLY_MODELS="${ONLY_MODELS:-flux3-image-klein-bf16}"; fi
 
 # 1 · ComfyUI, models, workflows A/B/C
@@ -45,19 +45,45 @@ if [[ -n "${HF_TOKEN:-}" && "$SETUP" == "full" ]]; then
     || log "WARNUNG: Klein-Base für ComfyUI nicht geladen"
 fi
 
+# 2b · eigene LoRAs aus dem Release des privaten Daten-Repos
+if [[ "$SETUP" != "train" && -n "${GITHUB_TOKEN:-}" && -n "${DATA_REPO:-}" ]]; then
+  log "LoRAs aus Release ${LORA_RELEASE:-loras-v1} laden …"
+  "$MAINPY" - "${COMFYUI_DIR}/models/loras" >>"$LOG" 2>&1 <<'PY' || log "WARNUNG: LoRA-Download"
+import json, os, re, sys, urllib.request
+dst = sys.argv[1]; repo = os.environ["DATA_REPO"]; tag = os.environ.get("LORA_RELEASE", "loras-v1")
+H = {"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"], "Accept": "application/vnd.github+json"}
+rel = json.load(urllib.request.urlopen(urllib.request.Request(f"https://api.github.com/repos/{repo}/releases/tags/{tag}", headers=H)))
+for a in rel["assets"]:
+    name = a["name"]; sub = re.sub(r"_\d{9}$", "", name.rsplit(".", 1)[0])
+    out = os.path.join(dst, sub, name)
+    if os.path.exists(out) and os.path.getsize(out) == a["size"]:
+        continue
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    req = urllib.request.Request(a["url"], headers={**H, "Accept": "application/octet-stream"})
+    with urllib.request.urlopen(req) as r, open(out + ".part", "wb") as f:
+        while True:
+            b = r.read(1 << 20)
+            if not b: break
+            f.write(b)
+    os.replace(out + ".part", out); print("LoRA", sub, name)
+PY
+fi
+
 # 3 · Agent code, HEIC support, vast CLI
 mkdir -p "${WORKSPACE_DIR}/relay" "${WORKSPACE_DIR}/datasets" "${WORKSPACE_DIR}/aitk_models"
 for f in agent.py prep_dataset.py; do curl -fsSL "${RAW}/remote/${f}" -o "${WORKSPACE_DIR}/relay/${f}"; done
 "$MAINPY" -m pip install -q --no-cache-dir pillow-heif vastai >>"$LOG" 2>&1 || log "WARNUNG: pip pillow-heif/vastai"
 
-# 4 · AI Toolkit in its own venv (does not touch ComfyUI's packages)
-if [[ ! -d "$AITK_DIR" ]]; then
+# 4 · AI Toolkit in its own venv (does not touch ComfyUI's packages) – nur für Training
+if [[ "$SETUP" == "use" ]]; then
+  log "SETUP=use: kein AI Toolkit"
+elif [[ ! -d "$AITK_DIR" ]]; then
   log "AI Toolkit klonen …"
   git clone -q https://github.com/ostris/ai-toolkit.git "$AITK_DIR" >>"$LOG" 2>&1
 else
   git -C "$AITK_DIR" pull -q --ff-only >>"$LOG" 2>&1
 fi
-if [[ ! -x "${AITK_VENV}/bin/python" ]]; then
+if [[ "$SETUP" != "use" && ! -x "${AITK_VENV}/bin/python" ]]; then
   log "AI Toolkit venv + torch …"
   PY=python3.12; command -v $PY >/dev/null || PY=python3
   if command -v uv >/dev/null; then uv venv -q --python "$PY" "$AITK_VENV" >>"$LOG" 2>&1; PIP="uv pip install -q --python ${AITK_VENV}/bin/python"
@@ -69,7 +95,7 @@ if [[ ! -x "${AITK_VENV}/bin/python" ]]; then
   $PIP $TV --index-url "https://download.pytorch.org/whl/${IDX}" >>"$LOG" 2>&1 || log "FEHLER: torch"
   (cd "$AITK_DIR" && $PIP -r requirements.txt >>"$LOG" 2>&1) || log "FEHLER: ai-toolkit requirements"
 fi
-"${AITK_VENV}/bin/python" -c "import torch;print('aitk torch',torch.__version__,torch.cuda.is_available())" >>"$LOG" 2>&1
+[[ "$SETUP" != "use" ]] && "${AITK_VENV}/bin/python" -c "import torch;print('aitk torch',torch.__version__,torch.cuda.is_available())" >>"$LOG" 2>&1
 
 # 5 · Data repo + agent as a supervisor service (restarts after a stop/start)
 if [[ -n "${GITHUB_TOKEN:-}" && -n "${DATA_REPO:-}" ]]; then

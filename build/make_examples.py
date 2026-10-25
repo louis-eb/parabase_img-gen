@@ -101,4 +101,34 @@ Image.fromarray(np.clip(np.stack([r, g, bl], -1), 0, 255).astype(np.uint8)).save
 Image.new("RGB", (512, 512), (128, 128, 128)).save(os.path.join(OUT, "stimmung.png"))
 # example for workflow C: a copy of material_1 so the graph validates before a real image is chosen
 Image.open(os.path.join(OUT, "material_1.png")).resize((768, 768)).save(os.path.join(OUT, "ausgewaehlt.png"))
+
+# ---------------- workflow E: colour-code render + line render of a simple scene ----------------
+CW, CH = 1152, 1440
+cc = Image.new("RGB", (CW, CH), (255, 255, 255)); dc = ImageDraw.Draw(cc)
+ln = Image.new("RGB", (CW, CH), (255, 255, 255)); dl = ImageDraw.Draw(ln)
+def both(kind, xy, fill, w=4):
+    getattr(dc, kind)(xy, fill=fill)
+    if kind == "polygon": dl.polygon(xy, outline=(0, 0, 0), width=w)
+    elif kind == "rectangle": dl.rectangle(xy, outline=(0, 0, 0), width=w)
+    elif kind == "ellipse": dl.ellipse(xy, outline=(0, 0, 0), width=w)
+# glass walls left/right (blue), floor (olive planks), ceiling (white)
+both("polygon", [(0, 0), (330, 260), (330, 1080), (0, 1440)], (0x43, 0x63, 0xD8))
+both("polygon", [(CW, 0), (820, 260), (820, 1080), (CW, 1440)], (0x43, 0x63, 0xD8))
+both("polygon", [(0, 1440), (330, 1080), (820, 1080), (CW, 1440)], (0x80, 0x80, 0x00))
+# three pylons in perspective (red), cross-arms (orange), sheave trains (yellow), gallery (cyan)
+for x, w, top, base, s in ((576, 150, 230, 1330, 1.0), (576, 80, 300, 1150, 0.55), (576, 48, 330, 1105, 0.33)):
+    both("rectangle", [x - w / 2, top, x + w / 2, base], (0xE6, 0x19, 0x4B))
+    both("rectangle", [x - 420 * s, top - 40 * s, x + 420 * s, top + 30 * s], (0xF5, 0x82, 0x31))
+    for side in (-1, 1):
+        both("rectangle", [x + side * 330 * s - 50 * s, top + 30 * s, x + side * 330 * s + 50 * s, top + 70 * s], (0xFF, 0xE1, 0x19))
+    both("rectangle", [x - 380 * s, top - 70 * s, x + 380 * s, top - 40 * s], (0x46, 0xF0, 0xF0))
+    # cables to the floor (teal) and joint markers
+    for side in (-1, 1):
+        a = (x + side * 400 * s, top); b = (x + side * 120 * s, base)
+        dc.line([a, b], fill=(0x46, 0x99, 0x90), width=max(2, int(6 * s))); dl.line([a, b], fill=(0, 0, 0), width=2)
+        r = 14 * s; dc.ellipse([a[0] - r, a[1] - r, a[0] + r, a[1] + r], fill=(0xFF, 0xFA, 0xC8))
+    r = 22 * s; dc.ellipse([x - w / 2 - r, top + 40 * s - r, x - w / 2 + r, top + 40 * s + r], fill=(0xFF, 0xD8, 0xB1))
+    dc.rectangle([x - w, base - 25 * s, x + w, base], fill=(0x80, 0x00, 0x00))
+cc.save(os.path.join(OUT, "farbcode.png")); ln.save(os.path.join(OUT, "linien.png"))
+Image.new("RGB", (768, 768), (140, 140, 140)).save(os.path.join(OUT, "knoten.png"))
 print("examples written to", OUT)

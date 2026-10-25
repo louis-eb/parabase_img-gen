@@ -4320,6 +4320,2828 @@ JSONEOF
  "version": 0.4
 }
 JSONEOF
+  cat > "${WORKFLOW_DIR}/D_LoRA_Test.json" <<'JSONEOF'
+{
+ "id": "00000000-0000-4000-8000-000000000003",
+ "revision": 0,
+ "last_node_id": 13,
+ "last_link_id": 12,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -1000,
+    -40
+   ],
+   "size": [
+    460,
+    300
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "## D · LoRA-Test (Text → Bild, FLUX.3 Klein)\n- **Liftteile** `mtbflift`: Stärke 0.8–1.0. Trigger an den Prompt-Anfang.\n- **Stil** `prbstyle`: standardmässig überbrückt (lila). Ctrl+B = an, Stärke 0.3–0.6.\n- Andere Trainingsstufe: Dateiname im Loader wechseln (z. B. `mtbflift_v1_000002000`).\n- Vergleich ohne LoRA: beide Loader mit Ctrl+B überbrücken, gleicher Seed (fixed)."
+   ],
+   "color": "#432",
+   "bgcolor": "#653"
+  },
+  {
+   "id": 2,
+   "type": "UNETLoader",
+   "pos": [
+    -980,
+    350
+   ],
+   "size": [
+    360,
+    82
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      1
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UNETLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "flux3-image-klein-bf16.safetensors",
+    "default"
+   ]
+  },
+  {
+   "id": 3,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    -980,
+    450
+   ],
+   "size": [
+    420,
+    82
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      2
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "mtbflift_v1/mtbflift_v1.safetensors",
+    0.9
+   ],
+   "title": "LoRA Liftteile · mtbflift"
+  },
+  {
+   "id": 4,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    -980,
+    560
+   ],
+   "size": [
+    420,
+    82
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 4,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 2
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      6
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "prbstyle_v1/prbstyle_v1_000001000.safetensors",
+    0.4
+   ],
+   "title": "LoRA Stil · prbstyle"
+  },
+  {
+   "id": 5,
+   "type": "CLIPLoader",
+   "pos": [
+    -980,
+    670
+   ],
+   "size": [
+    360,
+    106
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "CLIP",
+     "name": "CLIP",
+     "type": "CLIP",
+     "slot_index": 0,
+     "links": [
+      3
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "qwen3vl_4b_int8_convrot.safetensors",
+    "flux3",
+    "default"
+   ]
+  },
+  {
+   "id": 6,
+   "type": "VAELoader",
+   "pos": [
+    -980,
+    770
+   ],
+   "size": [
+    360,
+    58
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "VAE",
+     "name": "VAE",
+     "type": "VAE",
+     "slot_index": 0,
+     "links": [
+      11
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "flux2-vae.safetensors"
+   ]
+  },
+  {
+   "id": 7,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -480,
+    -40
+   ],
+   "size": [
+    560,
+    320
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      4
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "mtbflift, documentary architectural photograph inside a three-metre deep, two-storey thermal buffer zone between the inner glass facade and a continuous outer glass skin. A single line of salvaged chairlift pylons stands along the centre of the zone, one pylon per 3.5 metre module, each a massive galvanised steel tube about 70 cm in diameter with a flared base flange on heavy anchor bolts; at the top its original box-section cross-arm spans the zone with sheave trains and a grated walkway gallery. Tensioned and suspended structure: thin stainless steel cables with turnbuckles, slender tension rods with clevis forks, crossed diagonal bracing cables. Larch plank floor, grey linen curtains. At night, black sky behind the glass, photographed with a direct on-camera flash: hard specular highlights on galvanised steel and cables, deep black shadows, reflections of the flash in the glass, raw and documentary. Large-format camera, straight verticals, nearest pylon large in the foreground, bolts and weld seams sharp."
+   ],
+   "title": "Prompt",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 8,
+   "type": "CLIPTextEncode",
+   "pos": [
+    -480,
+    320
+   ],
+   "size": [
+    300,
+    90
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "clip",
+     "name": "clip",
+     "type": "CLIP",
+     "link": 3
+    },
+    {
+     "localized_name": "text",
+     "name": "text",
+     "type": "STRING",
+     "link": 4,
+     "widget": {
+      "name": "text"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      5,
+      7
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    ""
+   ],
+   "title": "Prompt (positiv)"
+  },
+  {
+   "id": 9,
+   "type": "ConditioningZeroOut",
+   "pos": [
+    -480,
+    450
+   ],
+   "size": [
+    240,
+    30
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "conditioning",
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "link": 5
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      8
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ConditioningZeroOut",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 10,
+   "type": "EmptyFlux2LatentImage",
+   "pos": [
+    -480,
+    540
+   ],
+   "size": [
+    300,
+    106
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      9
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "EmptyFlux2LatentImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    1152,
+    1440,
+    4
+   ],
+   "title": "Format · Anzahl"
+  },
+  {
+   "id": 11,
+   "type": "KSampler",
+   "pos": [
+    120,
+    -40
+   ],
+   "size": [
+    320,
+    262
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 6
+    },
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 7
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 8
+    },
+    {
+     "localized_name": "latent_image",
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 9
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      10
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    41,
+    "fixed",
+    16,
+    1,
+    "euler",
+    "simple",
+    1.0
+   ]
+  },
+  {
+   "id": 12,
+   "type": "VAEDecode",
+   "pos": [
+    120,
+    260
+   ],
+   "size": [
+    200,
+    46
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "samples",
+     "name": "samples",
+     "type": "LATENT",
+     "link": 10
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 11
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      12
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 13,
+   "type": "SaveImage",
+   "pos": [
+    480,
+    -40
+   ],
+   "size": [
+    700,
+    900
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "images",
+     "name": "images",
+     "type": "IMAGE",
+     "link": 12
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "SaveImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "D_lora/test"
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   2,
+   0,
+   3,
+   0,
+   "MODEL"
+  ],
+  [
+   2,
+   3,
+   0,
+   4,
+   0,
+   "MODEL"
+  ],
+  [
+   3,
+   5,
+   0,
+   8,
+   0,
+   "CLIP"
+  ],
+  [
+   4,
+   7,
+   0,
+   8,
+   1,
+   "STRING"
+  ],
+  [
+   5,
+   8,
+   0,
+   9,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   6,
+   4,
+   0,
+   11,
+   0,
+   "MODEL"
+  ],
+  [
+   7,
+   8,
+   0,
+   11,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   8,
+   9,
+   0,
+   11,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   9,
+   10,
+   0,
+   11,
+   3,
+   "LATENT"
+  ],
+  [
+   10,
+   11,
+   0,
+   12,
+   0,
+   "LATENT"
+  ],
+  [
+   11,
+   6,
+   0,
+   12,
+   1,
+   "VAE"
+  ],
+  [
+   12,
+   12,
+   0,
+   13,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "Modelle + eigene LoRAs",
+   "bounding": [
+    -1000,
+    300,
+    460,
+    520
+   ],
+   "color": "#555555",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.6,
+   "offset": [
+    0,
+    0
+   ]
+  }
+ },
+ "version": 0.4
+}
+JSONEOF
+  cat > "${WORKFLOW_DIR}/E_3D_Farbcode.json" <<'JSONEOF'
+{
+ "id": "00000000-0000-4000-8000-000000000003",
+ "revision": 0,
+ "last_node_id": 23,
+ "last_link_id": 24,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -1000,
+    -40
+   ],
+   "size": [
+    460,
+    620
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "## E · 3D-Szene mit Farbcode → Foto (FLUX.3 Klein + Liftteile-LoRA)\n1. **Referenz 0 = Farbcode-Render** aus dem 3D: unbeleuchtet, eine flache Farbe pro Bauteil-Typ, kleine farbige Kugeln an Knotenstellen. Bestimmt Geometrie, Ausschnitt und Bildformat.\n2. **Referenz 1 = Linien-Render** (Kanten/Outline aus dem 3D, schwarz auf weiss) aus derselben Kamera – hält Proportionen und Kanten. Optional.\n3. **Referenz 2 = Knoten-Referenz** (optional, nicht verbunden): Foto eines Knotens, im Text mit `<ref_image_2>` ansprechen.\n4. Die vier Textblöcke werden zusammengesetzt: **Szene**, **Legende** (Farbe → Bauteil), **Regeln** (Knoten-Logik), **Stimmung**. Legende an deine Farben anpassen, nicht benutzte Farben löschen.\n5. **Run** → 4 Varianten. Ausgewähltes Bild in **F · Veredeln** oder **C · Upscale** weiter.\n\nTipps: Wenn Farben im Bild durchschlagen → im Szene-Block „photograph, real materials only“ betonen oder `megapixels` an *Referenzen* senken. Wenn die Geometrie wegläuft → Linien-Render kontrastreicher, Satz „keep the exact geometry“ nach vorne."
+   ],
+   "color": "#223",
+   "bgcolor": "#335"
+  },
+  {
+   "id": 2,
+   "type": "UNETLoader",
+   "pos": [
+    -980,
+    670
+   ],
+   "size": [
+    360,
+    82
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      1
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UNETLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "flux3-image-klein-bf16.safetensors",
+    "default"
+   ]
+  },
+  {
+   "id": 3,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    -980,
+    770
+   ],
+   "size": [
+    420,
+    82
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      2
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "mtbflift_v1/mtbflift_v1.safetensors",
+    0.9
+   ],
+   "title": "LoRA Liftteile · mtbflift"
+  },
+  {
+   "id": 4,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    -980,
+    880
+   ],
+   "size": [
+    420,
+    82
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 4,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 2
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      18
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "prbstyle_v1/prbstyle_v1_000001000.safetensors",
+    0.4
+   ],
+   "title": "LoRA Stil · prbstyle"
+  },
+  {
+   "id": 5,
+   "type": "CLIPLoader",
+   "pos": [
+    -980,
+    990
+   ],
+   "size": [
+    360,
+    106
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "CLIP",
+     "name": "CLIP",
+     "type": "CLIP",
+     "slot_index": 0,
+     "links": [
+      9
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "qwen3vl_4b_int8_convrot.safetensors",
+    "flux3",
+    "default"
+   ]
+  },
+  {
+   "id": 6,
+   "type": "VAELoader",
+   "pos": [
+    -980,
+    1090
+   ],
+   "size": [
+    360,
+    58
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "VAE",
+     "name": "VAE",
+     "type": "VAE",
+     "slot_index": 0,
+     "links": [
+      14,
+      23
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "flux2-vae.safetensors"
+   ]
+  },
+  {
+   "id": 7,
+   "type": "LoadImage",
+   "pos": [
+    -480,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      15
+     ]
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "farbcode.png",
+    "image"
+   ],
+   "title": "Referenz 0 · Farbcode-Render"
+  },
+  {
+   "id": 8,
+   "type": "LoadImage",
+   "pos": [
+    -140,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      16
+     ]
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "linien.png",
+    "image"
+   ],
+   "title": "Referenz 1 · Linien-Render"
+  },
+  {
+   "id": 9,
+   "type": "LoadImage",
+   "pos": [
+    200,
+    10
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": null
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "knoten.png",
+    "image"
+   ],
+   "title": "Referenz 2 · Knoten (optional, nicht verbunden)"
+  },
+  {
+   "id": 10,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -480,
+    510
+   ],
+   "size": [
+    620,
+    200
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      3
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "mtbflift, documentary architectural photograph of the scene in <ref_image_0>. Keep the exact geometry, proportions, positions and camera angle of <ref_image_0>; the thin black lines in <ref_image_1> show the exact edges. A two-storey glazed buffer zone between the inner glass facade and the outer glass skin, built from salvaged chairlift parts."
+   ],
+   "title": "Szene",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 11,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -480,
+    740
+   ],
+   "size": [
+    620,
+    200
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      4
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "The flat colours in <ref_image_0> are only a material key and must not appear in the photograph: red = salvaged galvanised chairlift pylon shaft (80 cm tapering to 50 cm); green = salvaged green-painted drag-lift pylon tube (32 cm); orange = salvaged box-section pylon cross-arm or head frame; yellow = salvaged sheave train of rubber-lined rollers; purple = salvaged spoked lift bullwheel; navy = salvaged galvanised round-tube station frame or strut; cyan = salvaged galvanised grating walkway with tubular railing or ladder; magenta = salvaged chairlift chair or hanger with rope grip; teal = steel cable or slender tension rod; brown = old concrete foundation block with anchor bolts; olive = larch timber: rough-sawn beam, debarked log or planks; blue = large glass panes in slim frames; grey = new plain steel plates, brackets and sections; white = existing building: concrete slabs and walls. Small coloured spheres mark connection points and are replaced by real joints: small peach sphere = a heavy bolted two-part clamp collar; small lavender sphere = a pinned clevis joint with a large steel pin; small pale yellow sphere = a turnbuckle and cable anchor with thimble; small maroon sphere = a bolted flange or end plate with a ring of bolts; small mint sphere = a bearing: elastomeric pad and sliding steel plate."
+   ],
+   "title": "Legende Farbe → Bauteil",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 12,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -480,
+    970
+   ],
+   "size": [
+    620,
+    200
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      6
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "Every connection is explicit and load-bearing: bolts pass through drilled plates with nuts and washers, pins sit in clevis forks with split pins, cables end in thimbles, swaged fittings or turnbuckles, timber sits in bolted steel shoes; nothing is glued, nothing floats, nothing is hidden. The salvaged chairlift parts keep their weathered galvanising, old paint, stencilled numbers and wear; the few new parts are plain bright steel plates, bolts, pins and threaded rods. Tensioned and suspended structure: thin stainless steel cables with turnbuckles, slender tension rods with clevis forks, crossed diagonal bracing cables."
+   ],
+   "title": "Regeln für Knoten",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 13,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -480,
+    1200
+   ],
+   "size": [
+    620,
+    200
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      8
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "At night, black sky behind the glass, photographed with a direct on-camera flash: hard specular highlights on galvanised steel and cables, deep black shadows, reflections of the flash in the glass, raw and documentary. large-format camera, the connection fills the frame, every bolt, weld seam, thread and zinc crystal sharp, straight verticals."
+   ],
+   "title": "Stimmung",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 14,
+   "type": "StringConcatenate",
+   "pos": [
+    180,
+    740
+   ],
+   "size": [
+    260,
+    120
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "string_a",
+     "name": "string_a",
+     "type": "STRING",
+     "link": 3,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "localized_name": "string_b",
+     "name": "string_b",
+     "type": "STRING",
+     "link": 4,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      5
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "StringConcatenate",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 15,
+   "type": "StringConcatenate",
+   "pos": [
+    180,
+    970
+   ],
+   "size": [
+    260,
+    120
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "string_a",
+     "name": "string_a",
+     "type": "STRING",
+     "link": 5,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "localized_name": "string_b",
+     "name": "string_b",
+     "type": "STRING",
+     "link": 6,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      7
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "StringConcatenate",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 16,
+   "type": "StringConcatenate",
+   "pos": [
+    180,
+    1200
+   ],
+   "size": [
+    260,
+    120
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "string_a",
+     "name": "string_a",
+     "type": "STRING",
+     "link": 7,
+     "widget": {
+      "name": "string_a"
+     }
+    },
+    {
+     "localized_name": "string_b",
+     "name": "string_b",
+     "type": "STRING",
+     "link": 8,
+     "widget": {
+      "name": "string_b"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      10
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "StringConcatenate",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "",
+    "",
+    " "
+   ]
+  },
+  {
+   "id": 17,
+   "type": "CLIPTextEncode",
+   "pos": [
+    180,
+    1250
+   ],
+   "size": [
+    300,
+    90
+   ],
+   "flags": {},
+   "order": 17,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "clip",
+     "name": "clip",
+     "type": "CLIP",
+     "link": 9
+    },
+    {
+     "localized_name": "text",
+     "name": "text",
+     "type": "STRING",
+     "link": 10,
+     "widget": {
+      "name": "text"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      11,
+      12
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    ""
+   ],
+   "title": "Prompt (positiv)"
+  },
+  {
+   "id": 18,
+   "type": "ConditioningZeroOut",
+   "pos": [
+    180,
+    1370
+   ],
+   "size": [
+    240,
+    30
+   ],
+   "flags": {},
+   "order": 18,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "conditioning",
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "link": 11
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      13
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ConditioningZeroOut",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 19,
+   "type": "ReferenceMultiLatent",
+   "pos": [
+    620,
+    10
+   ],
+   "size": [
+    340,
+    210
+   ],
+   "flags": {},
+   "order": 19,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 12
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 13
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 14
+    },
+    {
+     "localized_name": "images.image0",
+     "name": "images.image0",
+     "type": "IMAGE",
+     "link": 15
+    },
+    {
+     "localized_name": "images.image1",
+     "name": "images.image1",
+     "type": "IMAGE",
+     "link": 16
+    },
+    {
+     "localized_name": "images.image2",
+     "name": "images.image2",
+     "type": "IMAGE",
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      19
+     ]
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "slot_index": 1,
+     "links": [
+      20
+     ]
+    },
+    {
+     "localized_name": "empty_latent",
+     "name": "empty_latent",
+     "type": "LATENT",
+     "slot_index": 2,
+     "links": [
+      17
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ReferenceMultiLatent",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "resize",
+    1.6
+   ],
+   "title": "Referenzen"
+  },
+  {
+   "id": 20,
+   "type": "RepeatLatentBatch",
+   "pos": [
+    620,
+    270
+   ],
+   "size": [
+    340,
+    58
+   ],
+   "flags": {},
+   "order": 20,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "samples",
+     "name": "samples",
+     "type": "LATENT",
+     "link": 17
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      21
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "RepeatLatentBatch",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    4
+   ],
+   "title": "Anzahl Varianten"
+  },
+  {
+   "id": 21,
+   "type": "KSampler",
+   "pos": [
+    620,
+    380
+   ],
+   "size": [
+    320,
+    262
+   ],
+   "flags": {},
+   "order": 21,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 18
+    },
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 19
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 20
+    },
+    {
+     "localized_name": "latent_image",
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 21
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      22
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    7,
+    "randomize",
+    16,
+    1,
+    "euler",
+    "simple",
+    1.0
+   ]
+  },
+  {
+   "id": 22,
+   "type": "VAEDecode",
+   "pos": [
+    620,
+    680
+   ],
+   "size": [
+    200,
+    46
+   ],
+   "flags": {},
+   "order": 22,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "samples",
+     "name": "samples",
+     "type": "LATENT",
+     "link": 22
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 23
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      24
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 23,
+   "type": "SaveImage",
+   "pos": [
+    1000,
+    10
+   ],
+   "size": [
+    680,
+    1220
+   ],
+   "flags": {},
+   "order": 23,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "images",
+     "name": "images",
+     "type": "IMAGE",
+     "link": 24
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "SaveImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "E_3d/variante"
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   2,
+   0,
+   3,
+   0,
+   "MODEL"
+  ],
+  [
+   2,
+   3,
+   0,
+   4,
+   0,
+   "MODEL"
+  ],
+  [
+   3,
+   10,
+   0,
+   14,
+   0,
+   "STRING"
+  ],
+  [
+   4,
+   11,
+   0,
+   14,
+   1,
+   "STRING"
+  ],
+  [
+   5,
+   14,
+   0,
+   15,
+   0,
+   "STRING"
+  ],
+  [
+   6,
+   12,
+   0,
+   15,
+   1,
+   "STRING"
+  ],
+  [
+   7,
+   15,
+   0,
+   16,
+   0,
+   "STRING"
+  ],
+  [
+   8,
+   13,
+   0,
+   16,
+   1,
+   "STRING"
+  ],
+  [
+   9,
+   5,
+   0,
+   17,
+   0,
+   "CLIP"
+  ],
+  [
+   10,
+   16,
+   0,
+   17,
+   1,
+   "STRING"
+  ],
+  [
+   11,
+   17,
+   0,
+   18,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   12,
+   17,
+   0,
+   19,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   13,
+   18,
+   0,
+   19,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   14,
+   6,
+   0,
+   19,
+   2,
+   "VAE"
+  ],
+  [
+   15,
+   7,
+   0,
+   19,
+   3,
+   "IMAGE"
+  ],
+  [
+   16,
+   8,
+   0,
+   19,
+   4,
+   "IMAGE"
+  ],
+  [
+   17,
+   19,
+   2,
+   20,
+   0,
+   "LATENT"
+  ],
+  [
+   18,
+   4,
+   0,
+   21,
+   0,
+   "MODEL"
+  ],
+  [
+   19,
+   19,
+   0,
+   21,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   20,
+   19,
+   1,
+   21,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   21,
+   20,
+   0,
+   21,
+   3,
+   "LATENT"
+  ],
+  [
+   22,
+   21,
+   0,
+   22,
+   0,
+   "LATENT"
+  ],
+  [
+   23,
+   6,
+   0,
+   22,
+   1,
+   "VAE"
+  ],
+  [
+   24,
+   22,
+   0,
+   23,
+   0,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "Modelle + eigene LoRAs",
+   "bounding": [
+    -1000,
+    620,
+    460,
+    520
+   ],
+   "color": "#555555",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 2,
+   "title": "1 · Referenzbilder aus dem 3D",
+   "bounding": [
+    -500,
+    -40,
+    1060,
+    470
+   ],
+   "color": "#3f789e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 3,
+   "title": "2 · Prompt-Bausteine",
+   "bounding": [
+    -500,
+    460,
+    1060,
+    980
+   ],
+   "color": "#3f6e3f",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "id": 4,
+   "title": "3 · Generieren",
+   "bounding": [
+    600,
+    -40,
+    1100,
+    1300
+   ],
+   "color": "#6b4f8a",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.6,
+   "offset": [
+    0,
+    0
+   ]
+  }
+ },
+ "version": 0.4
+}
+JSONEOF
+  cat > "${WORKFLOW_DIR}/F_Veredeln.json" <<'JSONEOF'
+{
+ "id": "00000000-0000-4000-8000-000000000007",
+ "revision": 0,
+ "last_node_id": 17,
+ "last_link_id": 18,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "MarkdownNote",
+   "pos": [
+    -1000,
+    -40
+   ],
+   "size": [
+    460,
+    300
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {},
+   "widgets_values": [
+    "## F · Veredeln (Bild → Bild, FLUX.3 Klein + Liftteile-LoRA)\nFür Bilder aus **A** (Z-Image mit Linien-ControlNet, Geometrie exakt) oder **E**: Klein zeichnet mit dem Liftteile-LoRA die Bauteile und Knoten neu, Komposition bleibt.\n- **denoise** am KSampler: 0.30 = fast nur Oberflächen, 0.45 = Knoten werden neu gezeichnet, 0.60 = freier.\n- Prompt: Bauteile und Knoten konkret benennen (Regeln-Block aus E hineinkopieren)."
+   ],
+   "color": "#432",
+   "bgcolor": "#653"
+  },
+  {
+   "id": 2,
+   "type": "UNETLoader",
+   "pos": [
+    -980,
+    350
+   ],
+   "size": [
+    360,
+    82
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      1
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UNETLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "flux3-image-klein-bf16.safetensors",
+    "default"
+   ]
+  },
+  {
+   "id": 3,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    -980,
+    450
+   ],
+   "size": [
+    420,
+    82
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 1
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      2
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "mtbflift_v1/mtbflift_v1.safetensors",
+    0.9
+   ],
+   "title": "LoRA Liftteile · mtbflift"
+  },
+  {
+   "id": 4,
+   "type": "LoraLoaderModelOnly",
+   "pos": [
+    -980,
+    560
+   ],
+   "size": [
+    420,
+    82
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 4,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 2
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "MODEL",
+     "name": "MODEL",
+     "type": "MODEL",
+     "slot_index": 0,
+     "links": [
+      10
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoraLoaderModelOnly",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "prbstyle_v1/prbstyle_v1_000001000.safetensors",
+    0.4
+   ],
+   "title": "LoRA Stil · prbstyle"
+  },
+  {
+   "id": 5,
+   "type": "CLIPLoader",
+   "pos": [
+    -980,
+    670
+   ],
+   "size": [
+    360,
+    106
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "CLIP",
+     "name": "CLIP",
+     "type": "CLIP",
+     "slot_index": 0,
+     "links": [
+      4
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "qwen3vl_4b_int8_convrot.safetensors",
+    "flux3",
+    "default"
+   ]
+  },
+  {
+   "id": 6,
+   "type": "VAELoader",
+   "pos": [
+    -980,
+    770
+   ],
+   "size": [
+    360,
+    58
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "VAE",
+     "name": "VAE",
+     "type": "VAE",
+     "slot_index": 0,
+     "links": [
+      8,
+      15
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "flux2-vae.safetensors"
+   ]
+  },
+  {
+   "id": 7,
+   "type": "LoadImage",
+   "pos": [
+    -480,
+    -40
+   ],
+   "size": [
+    320,
+    380
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      3
+     ]
+    },
+    {
+     "localized_name": "MASK",
+     "name": "MASK",
+     "type": "MASK",
+     "slot_index": 1,
+     "links": null
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "LoadImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "ausgewaehlt.png",
+    "image"
+   ],
+   "title": "Bild zum Veredeln"
+  },
+  {
+   "id": 8,
+   "type": "ImageScaleToTotalPixels",
+   "pos": [
+    -480,
+    360
+   ],
+   "size": [
+    300,
+    106
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "image",
+     "name": "image",
+     "type": "IMAGE",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      7,
+      17
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ImageScaleToTotalPixels",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "lanczos",
+    1.6,
+    16
+   ],
+   "title": "Arbeitsgrösse (megapixels)"
+  },
+  {
+   "id": 9,
+   "type": "PrimitiveStringMultiline",
+   "pos": [
+    -480,
+    500
+   ],
+   "size": [
+    560,
+    300
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "localized_name": "STRING",
+     "name": "STRING",
+     "type": "STRING",
+     "slot_index": 0,
+     "links": [
+      5
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "PrimitiveStringMultiline",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "mtbflift, documentary architectural photograph. Salvaged chairlift parts reused as a building structure: galvanised pylons, box-section cross-arms, sheave trains of rubber-lined rollers, grated walkways. Every connection is explicit and load-bearing: bolts pass through drilled plates with nuts and washers, pins sit in clevis forks with split pins, cables end in thimbles, swaged fittings or turnbuckles, timber sits in bolted steel shoes; nothing is glued, nothing floats, nothing is hidden. The salvaged chairlift parts keep their weathered galvanising, old paint, stencilled numbers and wear; the few new parts are plain bright steel plates, bolts, pins and threaded rods. Keep the composition, perspective and proportions of the input image."
+   ],
+   "title": "Prompt",
+   "color": "#232",
+   "bgcolor": "#353"
+  },
+  {
+   "id": 10,
+   "type": "CLIPTextEncode",
+   "pos": [
+    -480,
+    840
+   ],
+   "size": [
+    300,
+    90
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "clip",
+     "name": "clip",
+     "type": "CLIP",
+     "link": 4
+    },
+    {
+     "localized_name": "text",
+     "name": "text",
+     "type": "STRING",
+     "link": 5,
+     "widget": {
+      "name": "text"
+     }
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      6,
+      11
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPTextEncode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    ""
+   ],
+   "title": "Prompt (positiv)"
+  },
+  {
+   "id": 11,
+   "type": "ConditioningZeroOut",
+   "pos": [
+    -480,
+    960
+   ],
+   "size": [
+    240,
+    30
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "conditioning",
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "link": 6
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "CONDITIONING",
+     "name": "CONDITIONING",
+     "type": "CONDITIONING",
+     "slot_index": 0,
+     "links": [
+      12
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "ConditioningZeroOut",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 12,
+   "type": "VAEEncode",
+   "pos": [
+    120,
+    -40
+   ],
+   "size": [
+    200,
+    46
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "pixels",
+     "name": "pixels",
+     "type": "IMAGE",
+     "link": 7
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 8
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      9
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEEncode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 13,
+   "type": "RepeatLatentBatch",
+   "pos": [
+    120,
+    40
+   ],
+   "size": [
+    300,
+    58
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "samples",
+     "name": "samples",
+     "type": "LATENT",
+     "link": 9
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      13
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "RepeatLatentBatch",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    2
+   ],
+   "title": "Anzahl Varianten"
+  },
+  {
+   "id": 14,
+   "type": "KSampler",
+   "pos": [
+    120,
+    140
+   ],
+   "size": [
+    320,
+    262
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "model",
+     "name": "model",
+     "type": "MODEL",
+     "link": 10
+    },
+    {
+     "localized_name": "positive",
+     "name": "positive",
+     "type": "CONDITIONING",
+     "link": 11
+    },
+    {
+     "localized_name": "negative",
+     "name": "negative",
+     "type": "CONDITIONING",
+     "link": 12
+    },
+    {
+     "localized_name": "latent_image",
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 13
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "LATENT",
+     "name": "LATENT",
+     "type": "LATENT",
+     "slot_index": 0,
+     "links": [
+      14
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSampler",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    7,
+    "randomize",
+    16,
+    1,
+    "euler",
+    "simple",
+    0.45
+   ],
+   "title": "KSampler (denoise = wie stark neu gezeichnet wird)"
+  },
+  {
+   "id": 15,
+   "type": "VAEDecode",
+   "pos": [
+    120,
+    440
+   ],
+   "size": [
+    200,
+    46
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "samples",
+     "name": "samples",
+     "type": "LATENT",
+     "link": 14
+    },
+    {
+     "localized_name": "vae",
+     "name": "vae",
+     "type": "VAE",
+     "link": 15
+    }
+   ],
+   "outputs": [
+    {
+     "localized_name": "IMAGE",
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "slot_index": 0,
+     "links": [
+      16,
+      18
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": []
+  },
+  {
+   "id": 16,
+   "type": "SaveImage",
+   "pos": [
+    480,
+    -40
+   ],
+   "size": [
+    700,
+    900
+   ],
+   "flags": {},
+   "order": 16,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "images",
+     "name": "images",
+     "type": "IMAGE",
+     "link": 16
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "SaveImage",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [
+    "F_veredelt/bild"
+   ]
+  },
+  {
+   "id": 17,
+   "type": "ImageCompare",
+   "pos": [
+    1200,
+    -40
+   ],
+   "size": [
+    620,
+    700
+   ],
+   "flags": {},
+   "order": 17,
+   "mode": 0,
+   "inputs": [
+    {
+     "localized_name": "image_a",
+     "name": "image_a",
+     "type": "IMAGE",
+     "link": 17
+    },
+    {
+     "localized_name": "image_b",
+     "name": "image_b",
+     "type": "IMAGE",
+     "link": 18
+    }
+   ],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "ImageCompare",
+    "cnr_id": "comfy-core"
+   },
+   "widgets_values": [],
+   "title": "Vorher / Nachher"
+  }
+ ],
+ "links": [
+  [
+   1,
+   2,
+   0,
+   3,
+   0,
+   "MODEL"
+  ],
+  [
+   2,
+   3,
+   0,
+   4,
+   0,
+   "MODEL"
+  ],
+  [
+   3,
+   7,
+   0,
+   8,
+   0,
+   "IMAGE"
+  ],
+  [
+   4,
+   5,
+   0,
+   10,
+   0,
+   "CLIP"
+  ],
+  [
+   5,
+   9,
+   0,
+   10,
+   1,
+   "STRING"
+  ],
+  [
+   6,
+   10,
+   0,
+   11,
+   0,
+   "CONDITIONING"
+  ],
+  [
+   7,
+   8,
+   0,
+   12,
+   0,
+   "IMAGE"
+  ],
+  [
+   8,
+   6,
+   0,
+   12,
+   1,
+   "VAE"
+  ],
+  [
+   9,
+   12,
+   0,
+   13,
+   0,
+   "LATENT"
+  ],
+  [
+   10,
+   4,
+   0,
+   14,
+   0,
+   "MODEL"
+  ],
+  [
+   11,
+   10,
+   0,
+   14,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   12,
+   11,
+   0,
+   14,
+   2,
+   "CONDITIONING"
+  ],
+  [
+   13,
+   13,
+   0,
+   14,
+   3,
+   "LATENT"
+  ],
+  [
+   14,
+   14,
+   0,
+   15,
+   0,
+   "LATENT"
+  ],
+  [
+   15,
+   6,
+   0,
+   15,
+   1,
+   "VAE"
+  ],
+  [
+   16,
+   15,
+   0,
+   16,
+   0,
+   "IMAGE"
+  ],
+  [
+   17,
+   8,
+   0,
+   17,
+   0,
+   "IMAGE"
+  ],
+  [
+   18,
+   15,
+   0,
+   17,
+   1,
+   "IMAGE"
+  ]
+ ],
+ "groups": [
+  {
+   "id": 1,
+   "title": "Modelle + eigene LoRAs",
+   "bounding": [
+    -1000,
+    300,
+    460,
+    520
+   ],
+   "color": "#555555",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {
+  "ds": {
+   "scale": 0.6,
+   "offset": [
+    0,
+    0
+   ]
+  }
+ },
+ "version": 0.4
+}
+JSONEOF
 }
 
 write_examples() {
@@ -4429,6 +7251,36 @@ Image.fromarray(np.clip(np.stack([r, g, bl], -1), 0, 255).astype(np.uint8)).save
 Image.new("RGB", (512, 512), (128, 128, 128)).save(os.path.join(OUT, "stimmung.png"))
 # example for workflow C: a copy of material_1 so the graph validates before a real image is chosen
 Image.open(os.path.join(OUT, "material_1.png")).resize((768, 768)).save(os.path.join(OUT, "ausgewaehlt.png"))
+
+# ---------------- workflow E: colour-code render + line render of a simple scene ----------------
+CW, CH = 1152, 1440
+cc = Image.new("RGB", (CW, CH), (255, 255, 255)); dc = ImageDraw.Draw(cc)
+ln = Image.new("RGB", (CW, CH), (255, 255, 255)); dl = ImageDraw.Draw(ln)
+def both(kind, xy, fill, w=4):
+    getattr(dc, kind)(xy, fill=fill)
+    if kind == "polygon": dl.polygon(xy, outline=(0, 0, 0), width=w)
+    elif kind == "rectangle": dl.rectangle(xy, outline=(0, 0, 0), width=w)
+    elif kind == "ellipse": dl.ellipse(xy, outline=(0, 0, 0), width=w)
+# glass walls left/right (blue), floor (olive planks), ceiling (white)
+both("polygon", [(0, 0), (330, 260), (330, 1080), (0, 1440)], (0x43, 0x63, 0xD8))
+both("polygon", [(CW, 0), (820, 260), (820, 1080), (CW, 1440)], (0x43, 0x63, 0xD8))
+both("polygon", [(0, 1440), (330, 1080), (820, 1080), (CW, 1440)], (0x80, 0x80, 0x00))
+# three pylons in perspective (red), cross-arms (orange), sheave trains (yellow), gallery (cyan)
+for x, w, top, base, s in ((576, 150, 230, 1330, 1.0), (576, 80, 300, 1150, 0.55), (576, 48, 330, 1105, 0.33)):
+    both("rectangle", [x - w / 2, top, x + w / 2, base], (0xE6, 0x19, 0x4B))
+    both("rectangle", [x - 420 * s, top - 40 * s, x + 420 * s, top + 30 * s], (0xF5, 0x82, 0x31))
+    for side in (-1, 1):
+        both("rectangle", [x + side * 330 * s - 50 * s, top + 30 * s, x + side * 330 * s + 50 * s, top + 70 * s], (0xFF, 0xE1, 0x19))
+    both("rectangle", [x - 380 * s, top - 70 * s, x + 380 * s, top - 40 * s], (0x46, 0xF0, 0xF0))
+    # cables to the floor (teal) and joint markers
+    for side in (-1, 1):
+        a = (x + side * 400 * s, top); b = (x + side * 120 * s, base)
+        dc.line([a, b], fill=(0x46, 0x99, 0x90), width=max(2, int(6 * s))); dl.line([a, b], fill=(0, 0, 0), width=2)
+        r = 14 * s; dc.ellipse([a[0] - r, a[1] - r, a[0] + r, a[1] + r], fill=(0xFF, 0xFA, 0xC8))
+    r = 22 * s; dc.ellipse([x - w / 2 - r, top + 40 * s - r, x - w / 2 + r, top + 40 * s + r], fill=(0xFF, 0xD8, 0xB1))
+    dc.rectangle([x - w, base - 25 * s, x + w, base], fill=(0x80, 0x00, 0x00))
+cc.save(os.path.join(OUT, "farbcode.png")); ln.save(os.path.join(OUT, "linien.png"))
+Image.new("RGB", (768, 768), (140, 140, 140)).save(os.path.join(OUT, "knoten.png"))
 print("examples written to", OUT)
 
 PYEOF

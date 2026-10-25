@@ -12,7 +12,7 @@ BASE = dict(unet="flux3-image-klein-base-bf16.safetensors", steps=28, cfg=3.5, s
 
 def graph(prompt, loras=(), refs=(), batch=4, seed=1, width=1024, height=1280, megapixels=1.5,
           model=DISTILLED, prefix="relay/klein", negative="",
-          text_encoder="qwen3vl_4b_fp8_scaled.safetensors"):
+          text_encoder="qwen3vl_4b_int8_convrot.safetensors", init=None, denoise=1.0, init_mp=1.6):
     g, n = {}, [0]
 
     def add(cls, **inputs):
@@ -30,7 +30,11 @@ def graph(prompt, loras=(), refs=(), batch=4, seed=1, width=1024, height=1280, m
         neg = add("CLIPTextEncode", clip=clip, text=negative)
     else:
         neg = add("ConditioningZeroOut", conditioning=pos)
-    if refs:
+    if init:  # image-to-image: re-draw an existing image (workflow F)
+        im = add("LoadImage", image=init)
+        im = add("ImageScaleToTotalPixels", image=im, upscale_method="lanczos", megapixels=init_mp, resolution_steps=16)
+        lat = add("RepeatLatentBatch", samples=add("VAEEncode", pixels=im, vae=vae), amount=batch)
+    elif refs:
         ref_in = {"positive": pos, "negative": neg, "vae": vae, "resolution": "resize",
                   "resolution.megapixels": megapixels}
         for i, r in enumerate(refs):
@@ -42,7 +46,7 @@ def graph(prompt, loras=(), refs=(), batch=4, seed=1, width=1024, height=1280, m
         lat = add("EmptyFlux2LatentImage", width=width, height=height, batch_size=batch)
     ks = add("KSampler", model=m, positive=pos, negative=neg, latent_image=lat, seed=seed,
              steps=model["steps"], cfg=model["cfg"], sampler_name=model["sampler"],
-             scheduler=model["scheduler"], denoise=1.0)
+             scheduler=model["scheduler"], denoise=denoise)
     img = add("VAEDecode", samples=ks, vae=vae)
     add("SaveImage", images=img, filename_prefix=prefix)
     return g
