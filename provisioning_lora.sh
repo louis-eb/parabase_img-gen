@@ -12,6 +12,8 @@
 #                           "use"   (Standard) alle ComfyUI-Modelle für A–E, LoRAs aus dem Release, kein Training-Setup
 #                           "train" nur was ein neues LoRA-Training braucht (~35 GB)
 #                           "full"  beides
+#                           "flux2" FLUX.2 [dev] fp8 + Turbo-LoRA + SeedVR2 (Hochskalieren) + Klein mit eigenen LoRAs,
+#                                   ohne Z-Image/ControlNet (~80 GB, 100–120 GB Disk reichen)
 #   LORA_RELEASE        = optional, Release-Tag im Daten-Repo mit den LoRA-Dateien (Standard loras-v1)
 #
 # Log: /workspace/provisioning_lora.log
@@ -27,6 +29,7 @@ MAINPY="/venv/main/bin/python"; [[ -x "$MAINPY" ]] || MAINPY="$(command -v pytho
 
 SETUP="${SETUP:-use}"
 if [[ "$SETUP" == "train" ]]; then export ONLY_MODELS="${ONLY_MODELS:-flux3-image-klein-bf16}"; fi
+if [[ "$SETUP" == "flux2" ]]; then export ONLY_MODELS="${ONLY_MODELS:-klein-bf16,qwen3vl,flux2-vae,SeedVR2,RealESRGAN}"; fi
 
 # 1 · ComfyUI, models, workflows A/B/C
 log "ComfyUI-Setup (provisioning_arch.sh, SETUP=${SETUP}) …"
@@ -43,6 +46,14 @@ dl() {  # repo path subfolder
 if [[ -n "${HF_TOKEN:-}" && "$SETUP" == "full" ]]; then
   dl black-forest-labs/flux-3-image-klein-comfy diffusion_models/flux3-image-klein-base-bf16.safetensors diffusion_models \
     || log "WARNUNG: Klein-Base für ComfyUI nicht geladen"
+fi
+
+# 2a · FLUX.2 [dev] (fp8) + Mistral-Textencoder (fp4) + Turbo-LoRA – Standardmodell seit 26.10.2026
+if [[ "$SETUP" == "flux2" || "$SETUP" == "full" ]]; then
+  log "FLUX.2 [dev] laden (~51 GB) …"
+  dl Comfy-Org/flux2-dev split_files/diffusion_models/flux2_dev_fp8mixed.safetensors diffusion_models || log "WARNUNG: FLUX.2 dev"
+  dl Comfy-Org/flux2-dev split_files/text_encoders/mistral_3_small_flux2_fp4_mixed.safetensors text_encoders || log "WARNUNG: FLUX.2 Textencoder"
+  dl Comfy-Org/flux2-dev split_files/loras/Flux2TurboComfyv2.safetensors loras || log "WARNUNG: FLUX.2 Turbo-LoRA"
 fi
 
 # 2b · eigene LoRAs aus dem Release des privaten Daten-Repos

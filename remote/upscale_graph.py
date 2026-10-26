@@ -2,6 +2,8 @@
 
     from upscale_graph import upscale
     g = upscale("up_green.png", "documentary photograph of ...", denoise=0.3, mp=4.0, mult=2.0)
+
+With SETUP=flux2 (no Z-Image on the instance) use denoise=0: SeedVR2 only.
 """
 
 
