@@ -86,15 +86,15 @@ for f in agent.py prep_dataset.py; do curl -fsSL "${RAW}/remote/${f}" -o "${WORK
 "$MAINPY" -m pip install -q --no-cache-dir pillow-heif vastai >>"$LOG" 2>&1 || log "WARNUNG: pip pillow-heif/vastai"
 
 # 4 · AI Toolkit in its own venv (does not touch ComfyUI's packages) – nur für Training
-if [[ "$SETUP" == "use" ]]; then
-  log "SETUP=use: kein AI Toolkit"
+if [[ "$SETUP" == "use" || "$SETUP" == "flux2" ]]; then
+  log "SETUP=${SETUP}: kein AI Toolkit"
 elif [[ ! -d "$AITK_DIR" ]]; then
   log "AI Toolkit klonen …"
   git clone -q https://github.com/ostris/ai-toolkit.git "$AITK_DIR" >>"$LOG" 2>&1
 else
   git -C "$AITK_DIR" pull -q --ff-only >>"$LOG" 2>&1
 fi
-if [[ "$SETUP" != "use" && ! -x "${AITK_VENV}/bin/python" ]]; then
+if [[ "$SETUP" != "use" && "$SETUP" != "flux2" && ! -x "${AITK_VENV}/bin/python" ]]; then
   log "AI Toolkit venv + torch …"
   PY=python3.12; command -v $PY >/dev/null || PY=python3
   if command -v uv >/dev/null; then uv venv -q --python "$PY" "$AITK_VENV" >>"$LOG" 2>&1; PIP="uv pip install -q --python ${AITK_VENV}/bin/python"
@@ -106,7 +106,7 @@ if [[ "$SETUP" != "use" && ! -x "${AITK_VENV}/bin/python" ]]; then
   $PIP $TV --index-url "https://download.pytorch.org/whl/${IDX}" >>"$LOG" 2>&1 || log "FEHLER: torch"
   (cd "$AITK_DIR" && $PIP -r requirements.txt >>"$LOG" 2>&1) || log "FEHLER: ai-toolkit requirements"
 fi
-[[ "$SETUP" != "use" ]] && "${AITK_VENV}/bin/python" -c "import torch;print('aitk torch',torch.__version__,torch.cuda.is_available())" >>"$LOG" 2>&1
+[[ "$SETUP" != "use" && "$SETUP" != "flux2" ]] && "${AITK_VENV}/bin/python" -c "import torch;print('aitk torch',torch.__version__,torch.cuda.is_available())" >>"$LOG" 2>&1
 
 # 5 · Data repo + agent as a supervisor service (restarts after a stop/start)
 if [[ -n "${GITHUB_TOKEN:-}" && -n "${DATA_REPO:-}" ]]; then
