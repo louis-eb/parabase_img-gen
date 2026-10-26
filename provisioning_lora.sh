@@ -9,10 +9,10 @@
 #   DATA_REPO           = owner/name of the private data repo, e.g. louis-eb/parabase-lora-data
 #   AUTO_STOP_MIN       = optional, minutes without activity before the instance stops itself (default 40, 0 = off)
 #   SETUP               = optional:
-#                           "use"   (Standard) alle ComfyUI-Modelle für A–E, LoRAs aus dem Release, kein Training-Setup
+#                           "use"   alle ComfyUI-Modelle für A–E, LoRAs aus dem Release, kein Training-Setup
 #                           "train" nur was ein neues LoRA-Training braucht (~35 GB)
 #                           "full"  beides
-#                           "flux2" FLUX.2 [dev] fp8 + Turbo-LoRA + SeedVR2 (Hochskalieren) + Klein mit eigenen LoRAs,
+#                           "flux2" (Standard) FLUX.2 [dev] fp8 + Turbo-LoRA + SeedVR2 (Hochskalieren) + Klein mit eigenen LoRAs,
 #                                   ohne Z-Image/ControlNet (~80 GB, 100–120 GB Disk reichen)
 #   LORA_RELEASE        = optional, Release-Tag im Daten-Repo mit den LoRA-Dateien (Standard loras-v1)
 #
@@ -27,7 +27,7 @@ LOG="${WORKSPACE_DIR}/provisioning_lora.log"
 log() { echo "[lora-provisioning] $*" | tee -a "$LOG"; }
 MAINPY="/venv/main/bin/python"; [[ -x "$MAINPY" ]] || MAINPY="$(command -v python3)"
 
-SETUP="${SETUP:-use}"
+SETUP="${SETUP:-flux2}"
 if [[ "$SETUP" == "train" ]]; then export ONLY_MODELS="${ONLY_MODELS:-flux3-image-klein-bf16}"; fi
 if [[ "$SETUP" == "flux2" ]]; then export ONLY_MODELS="${ONLY_MODELS:-klein-bf16,qwen3vl,flux2-vae,SeedVR2,RealESRGAN}"; fi
 
