@@ -57,3 +57,24 @@ def flux2_dev(ref, prompt, extra_refs=(), loras=(), init=None, denoise=1.0, samp
     out = add("SamplerCustomAdvanced", noise=noise, guider=guider, sampler=sampler, sigmas=sig, latent_image=lat)
     add("SaveImage", images=add("VAEDecode", samples=out, vae=vae), filename_prefix=prefix)
     return g
+
+
+def flux2_t2i(prompt, width=1152, height=1440, loras=(), seed=1, steps=12, guidance=4.0, sampler_name="euler",
+              batch=1, prefix="F_flux2/t2i", unet="flux2_dev_fp8mixed.safetensors",
+              te="mistral_3_small_flux2_fp4_mixed.safetensors"):
+    """FLUX.2 [dev] text-to-image (no reference image), optional LoRAs (e.g. Turbo + own LoRAs)."""
+    g, add = _b()
+    m = add("UNETLoader", unet_name=unet, weight_dtype="default")
+    for name, st in loras:
+        m = add("LoraLoaderModelOnly", model=m, lora_name=name, strength_model=st)
+    clip = add("CLIPLoader", clip_name=te, type="flux2", device="default")
+    vae = add("VAELoader", vae_name="flux2-vae.safetensors")
+    pos = add("FluxGuidance", conditioning=add("CLIPTextEncode", clip=clip, text=prompt), guidance=guidance)
+    guider = add("BasicGuider", model=m, conditioning=pos)
+    sampler = add("KSamplerSelect", sampler_name=sampler_name)
+    sig = add("Flux2Scheduler", steps=steps, width=width, height=height)
+    noise = add("RandomNoise", noise_seed=seed)
+    lat = add("EmptyFlux2LatentImage", width=width, height=height, batch_size=batch)
+    out = add("SamplerCustomAdvanced", noise=noise, guider=guider, sampler=sampler, sigmas=sig, latent_image=lat)
+    add("SaveImage", images=add("VAEDecode", samples=out, vae=vae), filename_prefix=prefix)
+    return g
