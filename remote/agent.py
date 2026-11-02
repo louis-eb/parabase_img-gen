@@ -12,6 +12,9 @@ Job types (json field "type"):
   train   {"config": "configs/x.yaml", "name": "x", "prep": "..."}   AI Toolkit run (GPU lane)
   comfy   {"prompt": {<API graph>}, "inputs": ["data/inputs/a.png"]} ComfyUI run (GPU lane)
   export  {"files": ["/workspace/ComfyUI/output/..png"]}       push full-res files
+  release {"tag": "lora-x", "files": ["/workspace/ai-toolkit/output/x/*.safetensors"]}
+          upload files as assets of a release in DATA_REPO (train jobs do this automatically,
+          tag "lora-<name>" or "release_tag")
   cancel  {"target": "<job id>"}                               stop a running job
   stop    {}                                                   stop the instance
 
@@ -242,10 +245,63 @@ def job_train(jid, j):
     copied = []
     dst = os.path.join(COMFY_DIR, "models", "loras", name)
     os.makedirs(dst, exist_ok=True)
-    for c in glob.glob(os.path.join(outdir, "*.safetensors")):
+    files = sorted(glob.glob(os.path.join(outdir, "*.safetensors")))
+    for c in files:
         shutil.copy2(c, dst)
         copied.append(os.path.join("loras", name, os.path.basename(c)))
-    return {"returncode": rc, "copied_to_comfy": copied}, rc == 0
+    # back up every checkpoint to a release of the private data repo right away
+    backup = release_upload(j.get("release_tag", f"lora-{name}"), files)
+    return {"returncode": rc, "copied_to_comfy": copied, "release": backup}, rc == 0
+
+
+def gh_api(method, path, data=None, host="api.github.com"):
+    req = urllib.request.Request(f"https://{host}{path}", method=method,
+                                 data=json.dumps(data).encode() if data is not None else None,
+                                 headers={"Authorization": f"Bearer {TOKEN}", "Accept": "application/vnd.github+json",
+                                          "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return r.status, json.loads(r.read() or b"{}")
+    except urllib.error.HTTPError as e:
+        return e.code, {"body": e.read().decode("utf-8", "replace")[:500]}
+
+
+def release_upload(tag, files):
+    """Upload files as assets of release <tag> in DATA_REPO (created private-repo release if missing).
+    Returns {file: size_on_github or error}. Existing assets with the same name are kept (skipped)."""
+    code, rel = gh_api("GET", f"/repos/{REPO}/releases/tags/{tag}")
+    if code == 404:
+        code, rel = gh_api("POST", f"/repos/{REPO}/releases",
+                           {"tag_name": tag, "name": tag, "body": "LoRA checkpoints (auto backup by agent.py)"})
+    if code not in (200, 201):
+        return {"error": f"release {tag}: HTTP {code} {rel}"}
+    have = {a["name"]: a["size"] for a in rel.get("assets", [])}
+    out = {}
+    for f in files:
+        b = os.path.basename(f)
+        if b in have:
+            out[b] = have[b]
+            continue
+        # curl streams large files; the token comes from the environment, not the command line
+        cmd = (f'curl -sS --fail -X POST -H "Authorization: Bearer $GITHUB_TOKEN" '
+               f'-H "Content-Type: application/octet-stream" --data-binary @"{f}" '
+               f'"https://uploads.github.com/repos/{REPO}/releases/{rel["id"]}/assets?name={b}"')
+        p = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=3600,
+                           env={**os.environ, "GITHUB_TOKEN": TOKEN})
+        try:
+            out[b] = json.loads(p.stdout)["size"] if p.returncode == 0 else f"error {p.returncode}: {p.stderr[:300]}"
+        except (ValueError, KeyError):
+            out[b] = f"error: {p.stdout[:300]}"
+        if out[b] != os.path.getsize(f):
+            out[b] = f"size mismatch/error: {out[b]}"
+    return out
+
+
+def job_release(jid, j):
+    files = [f for pat in j["files"] for f in sorted(glob.glob(pat))]
+    res = release_upload(j["tag"], files)
+    ok = bool(files) and all(isinstance(v, int) for v in res.values())
+    return {"files": len(files), "release": res}, ok
 
 
 # files the toolkit downloaded -> ComfyUI names (saves downloading them twice)
@@ -341,7 +397,7 @@ def job_stop(jid, j):
     return {"stopping": True}, True
 
 
-CPU = {"shell": job_shell, "export": job_export, "cancel": job_cancel, "stop": job_stop}
+CPU = {"shell": job_shell, "export": job_export, "cancel": job_cancel, "stop": job_stop, "release": job_release}
 GPU = {"train": job_train, "comfy": job_comfy}
 
 
