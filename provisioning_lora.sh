@@ -29,7 +29,7 @@ LOG="${WORKSPACE_DIR}/provisioning_lora.log"
 log() { echo "[lora-provisioning] $*" | tee -a "$LOG"; }
 MAINPY="/venv/main/bin/python"; [[ -x "$MAINPY" ]] || MAINPY="$(command -v python3)"
 
-SETUP="${SETUP:-flux2train}"   # vorübergehend für Training 2.11.
+SETUP="${SETUP:-flux2}"
 if [[ "$SETUP" == "train" ]]; then export ONLY_MODELS="${ONLY_MODELS:-flux3-image-klein-bf16}"; fi
 if [[ "$SETUP" == "flux2" || "$SETUP" == "flux2train" ]]; then export ONLY_MODELS="${ONLY_MODELS:-klein-bf16,qwen3vl,flux2-vae,SeedVR2,RealESRGAN}"; fi
 
