@@ -16,7 +16,7 @@
 #                                   ohne Z-Image/ControlNet (~80 GB, 100–120 GB Disk reichen)
 #                           "flux2train" wie flux2 + AI Toolkit für FLUX.2-LoRA-Training (lädt beim Training
 #                                   zusätzlich FLUX.2-dev bf16 + Mistral-Small-3.1 ≈ 115 GB → 250 GB Disk)
-#   LORA_RELEASE        = optional, Release-Tags (kommagetrennt) im Daten-Repo mit den LoRA-Dateien (Standard lora-mtbflift_f2,lora-prbtekt_f2)
+#   LORA_RELEASE        = optional, Release-Tags (kommagetrennt) im Daten-Repo mit den LoRA-Dateien (Standard lora-mtbflift_f2; Stil-LoRA mit LORA_RELEASE=lora-mtbflift_f2,lora-prbtekt_f2)
 #
 # Log: /workspace/provisioning_lora.log
 set -uo pipefail
@@ -31,7 +31,8 @@ MAINPY="/venv/main/bin/python"; [[ -x "$MAINPY" ]] || MAINPY="$(command -v pytho
 
 SETUP="${SETUP:-flux2}"
 if [[ "$SETUP" == "train" ]]; then export ONLY_MODELS="${ONLY_MODELS:-flux3-image-klein-bf16}"; fi
-if [[ "$SETUP" == "flux2" || "$SETUP" == "flux2train" ]]; then export ONLY_MODELS="${ONLY_MODELS:-klein-bf16,qwen3vl,flux2-vae,SeedVR2,RealESRGAN}"; fi
+if [[ "$SETUP" == "flux2" ]]; then export ONLY_MODELS="${ONLY_MODELS:-flux2-vae}"; fi
+if [[ "$SETUP" == "flux2train" ]]; then export ONLY_MODELS="${ONLY_MODELS:-klein-bf16,qwen3vl,flux2-vae,SeedVR2,RealESRGAN}"; fi
 
 # 1 · ComfyUI, models, workflows A/B/C
 log "ComfyUI-Setup (provisioning_arch.sh, SETUP=${SETUP}) …"
@@ -60,10 +61,10 @@ fi
 
 # 2b · eigene LoRAs aus dem Release des privaten Daten-Repos
 if [[ "$SETUP" != "train" && -n "${GITHUB_TOKEN:-}" && -n "${DATA_REPO:-}" ]]; then
-  log "LoRAs aus Releases ${LORA_RELEASE:-lora-mtbflift_f2,lora-prbtekt_f2} laden …"
+  log "LoRAs aus Releases ${LORA_RELEASE:-lora-mtbflift_f2} laden …"
   "$MAINPY" - "${COMFYUI_DIR}/models/loras" >>"$LOG" 2>&1 <<'PY' || log "WARNUNG: LoRA-Download"
 import json, os, re, sys, urllib.request
-dst = sys.argv[1]; repo = os.environ["DATA_REPO"]; tags = os.environ.get("LORA_RELEASE", "lora-mtbflift_f2,lora-prbtekt_f2").split(",")
+dst = sys.argv[1]; repo = os.environ["DATA_REPO"]; tags = os.environ.get("LORA_RELEASE", "lora-mtbflift_f2").split(",")
 H = {"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"], "Accept": "application/vnd.github+json"}
 assets = []
 for tag in tags:
