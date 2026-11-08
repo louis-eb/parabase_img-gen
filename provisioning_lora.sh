@@ -16,7 +16,7 @@
 #                                   ohne Z-Image/ControlNet (~80 GB, 100–120 GB Disk reichen)
 #                           "flux2train" wie flux2 + AI Toolkit für FLUX.2-LoRA-Training (lädt beim Training
 #                                   zusätzlich FLUX.2-dev bf16 + Mistral-Small-3.1 ≈ 115 GB → 250 GB Disk)
-#   LORA_RELEASE        = optional, Release-Tag im Daten-Repo mit den LoRA-Dateien (Standard loras-v1)
+#   LORA_RELEASE        = optional, Release-Tags (kommagetrennt) im Daten-Repo mit den LoRA-Dateien (Standard lora-mtbflift_f2,lora-prbtekt_f2)
 #
 # Log: /workspace/provisioning_lora.log
 set -uo pipefail
@@ -60,13 +60,18 @@ fi
 
 # 2b · eigene LoRAs aus dem Release des privaten Daten-Repos
 if [[ "$SETUP" != "train" && -n "${GITHUB_TOKEN:-}" && -n "${DATA_REPO:-}" ]]; then
-  log "LoRAs aus Release ${LORA_RELEASE:-loras-v1} laden …"
+  log "LoRAs aus Releases ${LORA_RELEASE:-lora-mtbflift_f2,lora-prbtekt_f2} laden …"
   "$MAINPY" - "${COMFYUI_DIR}/models/loras" >>"$LOG" 2>&1 <<'PY' || log "WARNUNG: LoRA-Download"
 import json, os, re, sys, urllib.request
-dst = sys.argv[1]; repo = os.environ["DATA_REPO"]; tag = os.environ.get("LORA_RELEASE", "loras-v1")
+dst = sys.argv[1]; repo = os.environ["DATA_REPO"]; tags = os.environ.get("LORA_RELEASE", "lora-mtbflift_f2,lora-prbtekt_f2").split(",")
 H = {"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"], "Accept": "application/vnd.github+json"}
-rel = json.load(urllib.request.urlopen(urllib.request.Request(f"https://api.github.com/repos/{repo}/releases/tags/{tag}", headers=H)))
-for a in rel["assets"]:
+assets = []
+for tag in tags:
+    try:
+        assets += json.load(urllib.request.urlopen(urllib.request.Request(f"https://api.github.com/repos/{repo}/releases/tags/{tag.strip()}", headers=H)))["assets"]
+    except Exception as e:
+        print("release", tag, "fehlt:", e)
+for a in assets:
     name = a["name"]; sub = re.sub(r"_\d{9}$", "", name.rsplit(".", 1)[0])
     out = os.path.join(dst, sub, name)
     if os.path.exists(out) and os.path.getsize(out) == a["size"]:
