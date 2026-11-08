@@ -46,7 +46,7 @@ AUTO_STOP_MIN = float(os.environ.get("AUTO_STOP_MIN", "40"))
 COMFY_DIR = os.environ.get("COMFYUI_DIR", "/workspace/ComfyUI")
 AITK_DIR = os.environ.get("AITK_DIR", "/workspace/ai-toolkit")
 AITK_PY = os.environ.get("AITK_PY", "/venv/aitk/bin/python")
-PREVIEW_PX = int(os.environ.get("PREVIEW_PX", "1280"))
+PREVIEW_PX = int(os.environ.get("PREVIEW_PX", "4096"))  # Vorschau = Originalgrösse (FLUX.2 max ~1440 px), nichts geht beim Löschen verloren
 
 lock = threading.Lock()          # guards the results worktree
 running = {}                     # job id -> Popen (cancellable)
@@ -146,7 +146,7 @@ def preview(src, dst, px=PREVIEW_PX):
     from PIL import Image
     im = Image.open(src).convert("RGB")
     im.thumbnail((px, px))
-    im.save(dst, "JPEG", quality=85)
+    im.save(dst, "JPEG", quality=93, subsampling=0)
 
 
 def load_state():
